@@ -131,6 +131,8 @@ AR 한정 평가는 표본이 작아 도구의 일반 성능을 말할 수 없�
 - 타겟별 분해: AUROC 중앙값 0.448(양·음 모두 있는 14개 타겟), n-가중 타겟 내 AUROC ≈ 0.45, 가장 큰 타겟 ERα(n=258) 0.276; 양성-음성 쌍의 약 93%가 타겟 간(cross-target) 쌍([그림2-2] `outputs/ts_per_target.png`).
 - AGA 타겟 AR은 미관측 AUROC 0.702(n=42, CI[0.52, 0.85]). (이상 수치의 해석은 ⑤-1)
 
+**STAN 자체 test set으로의 교차 확인** ([그림2-4] `outputs/fig_testset_vs_holdout.png`). 위의 "학습-관측(leaked)" 기준 대신 PROTAC-STAN이 공개한 **자체 test set(207개, 학습 미사용)** 으로 평가해도 AUROC **0.910** [0.867, 0.949]로, 본 연구의 leaked(0.909)와 사실상 동일하다. 학습셋 재채점은 0.971(암기 상한). 즉 in-distribution 기준을 STAN 공식 test set으로 택하든 leaked로 택하든 결론은 같다 — **in-distribution ≈0.91 vs 전향적 0.574**의 격차(일반화 실패)는 기준 선택의 산물이 아니다. leaked를 함께 쓴 이유는 전향적 hold-out과 **데이터 출처·라벨링·파이프라인을 동일하게 유지한 채** "STAN이 골격을 봤는가"만 달리한 apples-to-apples 대조이기 때문이다.
+
 **도구 간 교차검증.** 방법론이 전혀 다른 포켓-프리 예측기 **Ribes**(FP+XGBoost/MLP)를 두 도구 모두 학습에 보지 못한 동일 786개에 적용해 비교하였다([표3] `outputs/multitool_metrics.csv`, [그림2-3] `outputs/fig_multitool.png`).
 
 **[표3] 동일 786개에서 STAN vs Ribes — 분석 렌즈별 AUROC**
@@ -220,7 +222,7 @@ case study 29개에 PROTAC-STAN을 적용하면 leakage-free 활성 앵커(C5 70
 ## 부록 — 재현 정보
 - **환경**: 메인 분석 `~/anaconda3/envs/protac`(Python 3.10, torch 2.8.0+cu128, RDKit 2026.03.1). 투과(PROTAC-TS) `protac_ts`(TabPFN). co-fold(Boltz-2) `protac_boltz`. 도구 교차검증(Ribes) `protac_ribes`.
 - **스크립트(`scripts/`)**: `phase0_freeze.py`, `fig1_chemspace.py`, `run_stan_inference.py`/`run_stan_ts.py`(STAN 추론), `timesplit_build.py`/`timesplit_eval.py`(전향적 평가), `multitool_eval.py`(STAN vs Ribes), `phase3_skin.py`(Potts-Guy), `protacts_predict.py`(PROTAC-TS Caco-2), `phase5_design.py`(신규 설계), `resolve_doi_years.py`/`build_pubdate_kde.py`(게재연도), `build_chemspace_html.py`(인터랙티브 화학공간), `stan_patch.py`, `boltz_all29_build.py`/`boltz_all29_collect.py`(co-fold 29개 생성·집계). Boltz 입력 `~/PROTAC_MTL_v5/boltz_{B3_ternary,all29}/`.
-- **산출물(`outputs/`)**: `table1~5.csv`, `timesplit_metrics.csv`·`timesplit_per_target.csv`·`multitool_metrics.csv`, 그림 `fig1_chemspace.png`·`ts_roc.png`·`ts_per_target.png`·`fig_multitool.png`·`fig3_separation.png`·`fig_protacts.png`·`pubdate_kde.png`·`fig_boltz_all29.png`, `boltz_all29_confidence.csv`, 인터랙티브 `chemspace_view1_AR.html`·`chemspace_view2_split.html`, Boltz 구조 29개 `~/PROTAC_MTL_v5/boltz_all29/out/.../predictions/<ID>/<ID>_model_0.pdb`(+ B3 별도).
+- **산출물(`outputs/`)**: `table1~5.csv`, `timesplit_metrics.csv`·`timesplit_per_target.csv`·`multitool_metrics.csv`, 그림 `fig1_chemspace.png`·`ts_roc.png`·`ts_per_target.png`·`fig_multitool.png`·`fig3_separation.png`·`fig_protacts.png`·`pubdate_kde.png`·`fig_boltz_all29.png`·`fig_testset_vs_holdout.png`, `boltz_all29_confidence.csv`, 인터랙티브 `chemspace_view1_AR.html`·`chemspace_view2_split.html`, Boltz 구조 29개 `~/PROTAC_MTL_v5/boltz_all29/out/.../predictions/<ID>/<ID>_model_0.pdb`(+ B3 별도).
 
 ---
 
