@@ -147,6 +147,19 @@ AR 한정 평가는 표본이 작아 도구의 일반 성능을 말할 수 없�
 
 구조 기반 **DegradeMaster**는 화합물마다 3원 pocket이 필요해 본 세트에 적용할 수 없어 저자 보고값만 인용한다: supervised PROTAC-1K AUROC 0.854, semisupervised PROTAC-8K(random split) 0.882²⁸. 이 셋을 단일 held-out 세트로 비교할 수 없는데, DegradeMaster가 구조를 가진 유일한 셋 PROTAC-8K가 STAN 학습셋과 **100%**·Ribes와 **68%** 겹치기 때문이다. (이 수치들의 함의는 ⑤-2)
 
+**세 도구 공통 패턴 — random split은 높고, 타겟 교차에서 붕괴** ([표3b]·[그림2-5] `outputs/fig_alltools_selftest.png`). 각 도구의 *자체* 평가만 봐도 같은 현상이 드러난다. Ribes는 저자 리포트에서 random split AUROC 0.91이지만 **target-split에서 0.58**로 떨어지고(similarity split 0.90은 유지 → 골격 일반화는 되나 타겟 일반화는 안 됨), STAN도 자체 test 0.910 대비 타겟별 macro 0.531이다. DegradeMaster는 random split 0.882만 보고할 뿐 타겟 교차·전향적 성능은 구조 요구로 측정 불가하다.
+
+**[표3b] 도구별 자체 평가: random split vs 타겟 교차 split**
+
+| 도구 | random/in-dist | 타겟 교차(target-split) | similarity split | 우리 전향적 hold-out |
+|---|---|---|---|---|
+| PROTAC-STAN | 0.910 (자체 test 207) | 0.531 (per-target macro) | — | 0.574 (pooled) |
+| Ribes (XGBoost) | 0.906 | **0.585** | 0.897 | 0.696(strict)/0.491(native) |
+| Ribes (배포 앙상블) | 0.83 | 0.55 | 0.66 | — |
+| DegradeMaster | 0.854(1K)·0.882(8K) | 측정 불가 | — | 측정 불가(구조 필요) |
+
+→ 도구·모델·split을 달리해도 결론은 견고하다: **in-distribution(random) ≈0.85~0.91 → 타겟 교차/전향적 ≈0.45~0.59**. "벤치마크 성능"은 일관되게 실사용(신규 타겟·신규 골격) 성능을 과대평가한다.
+
 ### 4-2. (나) 투과성 도구 — 3중 도메인 구분의 실증 ([표4]·[그림3])
 - **Potts-Guy(피부 투과)**: 29개 logKp는 −8.22 ~ −6.74로 압축되었고, MW>750이 11/29·TPSA>140이 13/29로 전체의 44.8%가 적용도메인(AD) 밖이다. MW항 지배로 모든 PROTAC이 균일하게 낮은 logKp로 압축되어 변별력을 잃는다(예상된 결과). 절대 Kp는 정량 신뢰가 불가하다. 예측 logKp와 실측 피부 잔류의 Spearman은 0.042로, 피부 잔류(depot)와 피부 통과(Kp)가 물리적으로 다른 endpoint임을 보여준다([그림3] `outputs/fig3_separation.png`).
 - **PROTAC-TS(세포막 투과)**: PROTAC-DB Caco-2 약 90개로 TabPFN을 직접 학습(자체 LOOCV R²=0.78, `~/PROTAC-TS` make_model)해 29개를 예측하였다(누수 없음). 예측 세포막 투과는 실측 피부 잔류와 약한 양의 상관(Spearman +0.41), Potts-Guy 피부 logKp와는 무상관(−0.05)을 보였다([그림3b] `outputs/fig_protacts.png`).
@@ -221,8 +234,8 @@ case study 29개에 PROTAC-STAN을 적용하면 leakage-free 활성 앵커(C5 70
 
 ## 부록 — 재현 정보
 - **환경**: 메인 분석 `~/anaconda3/envs/protac`(Python 3.10, torch 2.8.0+cu128, RDKit 2026.03.1). 투과(PROTAC-TS) `protac_ts`(TabPFN). co-fold(Boltz-2) `protac_boltz`. 도구 교차검증(Ribes) `protac_ribes`.
-- **스크립트(`scripts/`)**: `phase0_freeze.py`, `fig1_chemspace.py`, `run_stan_inference.py`/`run_stan_ts.py`(STAN 추론), `timesplit_build.py`/`timesplit_eval.py`(전향적 평가), `multitool_eval.py`(STAN vs Ribes), `phase3_skin.py`(Potts-Guy), `protacts_predict.py`(PROTAC-TS Caco-2), `phase5_design.py`(신규 설계), `resolve_doi_years.py`/`build_pubdate_kde.py`(게재연도), `build_chemspace_html.py`(인터랙티브 화학공간), `stan_patch.py`, `boltz_all29_build.py`/`boltz_all29_collect.py`(co-fold 29개 생성·집계). Boltz 입력 `~/PROTAC_MTL_v5/boltz_{B3_ternary,all29}/`.
-- **산출물(`outputs/`)**: `table1~5.csv`, `timesplit_metrics.csv`·`timesplit_per_target.csv`·`multitool_metrics.csv`, 그림 `fig1_chemspace.png`·`ts_roc.png`·`ts_per_target.png`·`fig_multitool.png`·`fig3_separation.png`·`fig_protacts.png`·`pubdate_kde.png`·`fig_boltz_all29.png`·`fig_testset_vs_holdout.png`, `boltz_all29_confidence.csv`, 인터랙티브 `chemspace_view1_AR.html`·`chemspace_view2_split.html`, Boltz 구조 29개 `~/PROTAC_MTL_v5/boltz_all29/out/.../predictions/<ID>/<ID>_model_0.pdb`(+ B3 별도).
+- **스크립트(`scripts/`)**: `phase0_freeze.py`, `fig1_chemspace.py`, `run_stan_inference.py`/`run_stan_ts.py`(STAN 추론), `timesplit_build.py`/`timesplit_eval.py`(전향적 평가), `multitool_eval.py`(STAN vs Ribes), `phase3_skin.py`(Potts-Guy), `protacts_predict.py`(PROTAC-TS Caco-2), `phase5_design.py`(신규 설계), `resolve_doi_years.py`/`build_pubdate_kde.py`(게재연도), `build_chemspace_html.py`(인터랙티브 화학공간), `stan_patch.py`, `stan_testset_build.py`(STAN 자체 train/test 평가), `boltz_all29_build.py`/`boltz_all29_collect.py`(co-fold 29개 생성·집계). Boltz 입력 `~/PROTAC_MTL_v5/boltz_{B3_ternary,all29}/`. Ribes 자체 test 메트릭은 `~/PROTAC-Degradation-Predictor/reports/`.
+- **산출물(`outputs/`)**: `table1~5.csv`, `timesplit_metrics.csv`·`timesplit_per_target.csv`·`multitool_metrics.csv`, 그림 `fig1_chemspace.png`·`ts_roc.png`·`ts_per_target.png`·`fig_multitool.png`·`fig3_separation.png`·`fig_protacts.png`·`pubdate_kde.png`·`fig_boltz_all29.png`·`fig_testset_vs_holdout.png`·`fig_alltools_selftest.png`, `boltz_all29_confidence.csv`, 인터랙티브 `chemspace_view1_AR.html`·`chemspace_view2_split.html`, Boltz 구조 29개 `~/PROTAC_MTL_v5/boltz_all29/out/.../predictions/<ID>/<ID>_model_0.pdb`(+ B3 별도).
 
 ---
 
