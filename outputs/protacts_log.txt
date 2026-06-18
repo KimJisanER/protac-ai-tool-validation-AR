@@ -1,0 +1,18 @@
+======================================================================
+PROTAC-TS: case study 29개 Caco-2 세포막 투과도 예측
+======================================================================
+[모델] TabPFN 로드: /home/kimjisan95/PROTAC-TS/model/pre_model/PROTAC/model_all.pkl
+[예측] 29개 log10Papp 범위 -1.70~-1.22
+
+[3중 도메인 구분 — 예측 Caco-2 세포막투과 vs 다른 축]
+  세포막투과 vs 피부잔류(retention): Spearman=+0.413 (p=0.026, n=29)
+  세포막투과 vs Potts-Guy logKp(피부 전신투과): Spearman=-0.049 (p=0.800, n=29)
+  세포막투과 vs STAN 활성확률: Spearman=-0.102 (p=0.599, n=29)
+  세포막투과 vs Dmax: Spearman=-0.063 (p=0.837, n=13)
+
+[계열별 예측 Caco-2 log10Papp 평균]
+  A: -1.40 (n=16)
+  B: -1.58 (n=6)
+  C: -1.41 (n=7)
+
+[그림] outputs/fig_protacts.png  [저장] outputs/protacts_caco2.csv

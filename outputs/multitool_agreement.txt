@@ -1,0 +1,43 @@
+======================================================================
+STAN vs Ribes — doubly-held-out 동일 786개 (다중 렌즈)
+======================================================================
+양성률 — STAN-strict GT: 28.8%(226/786) | Ribes-native GT: 69.6%(547/786)
+
+[교란] KRAS 화합물 214/786 (양성 2) — 단일클래스 블록
+
+[성능 — 다중 렌즈]
+                                     model  AUROC_strictGT            CI  AUPR_strictGT  AUROC_nativeGT  AUROC_exKRAS_strictGT  mean_prob_on_KRAS(all-neg)
+              PROTAC-STAN (GNN+ESM, 단일 동결)           0.550  [0.51,0.588]          0.298           0.559                  0.427                       0.300
+Ribes standard (FP+XGB/MLP, random-CV 앙상블)           0.696 [0.651,0.739]          0.548           0.491                  0.618                       0.469
+         Ribes target-split (group-CV 앙상블)           0.685 [0.638,0.729]          0.552           0.577                  0.670                       0.328
+
+[타겟별 AUROC — 양·음 둘 다 존재하는 타겟, strict GT]
+   Target   n  pos  PROTAC-STAN  Ribes standard  Ribes target-split
+       AR  28   11        0.652           0.390               0.166
+     BRD2   4    3        0.333           0.667               0.333
+     BRD4  39   20        0.503           0.526               0.537
+ BRD4 BD1   5    2        0.000           0.667               0.000
+     BRD9  28   15        0.415           0.872               0.533
+      BTK  30   26        0.750           0.567               0.817
+      CBP  50   34        0.436           0.673               0.702
+     CDK4  15    4        0.295           0.432               0.364
+     CDK9  17    9        0.681           0.306               0.250
+  ERalpha 217   53        0.178           0.365               0.569
+   FKBP12   7    5        0.600           0.700               0.400
+     FLT3   4    3        1.000           1.000               1.000
+    HDAC8   8    3        0.267           0.267               0.733
+      ITK  18   13        0.462           0.585               0.338
+KRAS G12D  14    2        0.792           0.708               0.500
+   MAP4K1  57   14        0.664           0.349               0.274
+  SMARCA2   2    1        1.000           1.000               1.000
+
+[타겟별 macro 평균 AUROC] (17개 양·음 타겟)
+  PROTAC-STAN: 0.531
+  Ribes standard: 0.593
+  Ribes target-split: 0.501
+
+[모델 간 (불)일치 — 라벨-무관, 견고]
+  Spearman(prob) = 0.190  |  Cohen κ(0.5컷) = 0.128  |  호출일치율 = 56.4%(0.5컷·불균형 의존, 보조)
+  불일치 343건 중 STAN 정답 40.2% / Ribes 정답 59.8%
+
+[그림] outputs/fig_multitool.png  [저장] multitool_metrics.csv, multitool_pertarget.csv

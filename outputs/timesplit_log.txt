@@ -1,0 +1,17 @@
+======================================================================
+Phase TS-A — 전체 타겟 time-split 세트 구축
+======================================================================
+[ESM] 커버 Uniprot 수 = 283 (타겟+E3 합산)
+[E3 매핑] {'CRBN': 'Q96SW2', 'FEM1B': 'Q9UK73', 'MDM2': 'Q00987', 'VHL': 'P40337', 'XIAP': 'P98170', 'cIAP1': 'Q13490'}
+[누수기준] STAN protac-fine unique ik14 = 1164
+[신DB] 전체 15502행 x 89열
+[신DB] DC50+Dmax 둘 다 보유(파싱) = 2157행
+[신DB] +타겟·E3 모두 ESM 커버 = 1788행 (타겟 86종, E3 5종)
+[dedup] compound-level unique ik14 = 1415
+[분할] prospective(미관측) = 1134  /  leaked(관측) = 281
+[prospective 라벨] 양성 388 / 음성 746 (양성률 34.2%)
+[leaked 라벨]      양성 149 / 음성 132 (양성률 53.0%)
+[prospective] 타겟 수 = 51, AR(P10275) 포함 화합물 = 42
+[STAN입력] /home/kimjisan95/PROTAC-STAN/data/ts_new/ts_new.csv  (1134행)  + esm_s_map.pkl
+[STAN입력] /home/kimjisan95/PROTAC-STAN/data/ts_seen/ts_seen.csv  (281행)  + esm_s_map.pkl
+[참고] 시간성 근거: 분할은 "STAN 학습 미관측" 구조적 기준이 주(主). protac.xlsx Article DOI 기반 엄밀 연도분할은 저널별 DOI 패턴 불균일로 보조만.

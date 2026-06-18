@@ -1,0 +1,24 @@
+# ── 서드파티 도구 repo (각자 공식 repo 존재; 본 repo에 미포함) ──
+DegradeMaster/
+DegradoMap/
+PROTAC-STAN/
+PROTAC-TS/
+PROTAC-Degradation-Predictor/
+
+# ── 저작권/라이선스 원본 데이터 (재배포 금지; README의 출처에서 직접 내려받기) ──
+protac.xlsx
+ProtacDB_MTL_CLS.csv
+ProtacDB_MTL_CLS_ADD*.csv
+jm4c02226_si_002.csv
+*.pdf
+*.docx
+
+# ── 내부/환경 ──
+.claude/
+**/__pycache__/
+*.pyc
+.DS_Store
+.ipynb_checkpoints/
+
+# ── 대용량 캐시(원하면 주석 해제하여 포함) ──
+# data/processed/chemspace_coords.csv

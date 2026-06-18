@@ -1,0 +1,31 @@
+======================================================================
+Phase TS-C — time-split 성능 평가
+======================================================================
+
+[지표 표]
+                  cohort    n  pos  neg  pos_rate  AUROC  AUROC_lo  AUROC_hi  AUPR  AUPR_lo  AUPR_hi    F1  F1_lo  F1_hi   MCC  MCC_lo  MCC_hi  BalAcc  BalAcc_lo  BalAcc_hi   Acc
+prospective(STAN-unseen) 1134  388  746     0.342  0.574     0.539     0.607 0.379    0.340    0.421 0.473  0.434  0.510 0.098   0.044   0.154   0.551      0.522      0.582 0.532
+       leaked(STAN-seen)  281  149  132     0.530  0.909     0.873     0.941 0.895    0.837    0.943 0.858  0.814  0.899 0.687   0.602   0.770   0.840      0.798      0.882 0.843
+  prospective-AR(P10275)   42   22   20     0.524  0.702     0.524     0.854 0.700    0.517    0.882 0.731  0.578  0.857 0.347   0.076   0.612   0.657      0.528      0.788 0.667
+[Spearman/prospective] prob vs -DC50 rho=0.348 (n=1134); prob vs Dmax rho=0.112 (n=1134)
+[Spearman/leaked] prob vs -DC50 rho=0.614 (n=281); prob vs Dmax rho=0.519 (n=281)
+
+[타겟별 AUROC] (양·음 각≥5인 14개 타겟)
+Uniprot                 Target   n  pos  AUROC
+ P03372                ERalpha 258   71  0.276
+ Q92793                    CBP  75   49  0.443
+ P51531                SMARCA2  61   31  0.601
+ O60885                   BRD4  58   26  0.459
+ Q92918                 MAP4K1  57   14  0.664
+ Q06187                    BTK  55   48  0.661
+ P10275                     AR  42   22  0.702
+ Q9H8M2                   BRD9  28   15  0.415
+ Q9NWZ3                  IRAK4  19   12  0.452
+ P00533 EGFR L858R/T790M/C797S  19   10  0.422
+ Q08881                    ITK  19   14  0.429
+ P50750                   CDK9  17    9  0.681
+ Q07889                   SOS1  14    9  0.378
+ Q9BY41                  HDAC8  14    6  0.438
+  타겟별 AUROC: 중앙값=0.448, 평균=0.501, >0.5인 타겟=5/14
+
+[그림] ts_roc.png, ts_pr.png, ts_probdist.png, ts_per_target.png

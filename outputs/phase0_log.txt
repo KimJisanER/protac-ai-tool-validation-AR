@@ -1,0 +1,33 @@
+======================================================================
+Phase 0 데이터 동결 — 모든 수치의 단일 출처
+======================================================================
+
+[구DB] 전체 6107행 x 25열
+[구DB] AR(Uniprot==P10275) = 367행, unique ik14 = 360
+[구DB] Degrader_Class_mask==1 관측 라벨 = 507행 (양성 254 / 음성 253)  ← C14: 약 50:50 균형
+[구DB] 라벨 결손율(미관측) = 5600/6107 = 91.7%  ← C14 정정
+[구DB] AR 관측 라벨 = 51행 (양성 25 / 음성 26)  ← C4: 재학습 포기 사유(양성 절대수 25)
+
+[신DB] 전체 15502행 x 89열
+[신DB] AR(Uniprot==P10275) = 777행, unique ik14 = 658
+[신DB] AR DC50 결손율 = 78.5%, Dmax 결손율 = 82.1%
+
+[구조분할] 구DB AR unique=360, 신DB AR unique=658, overlap=360
+[구조분할] new-only AR ik14 (test 후보) = 298  ← C13 기대값 298
+
+[case study] 29행 = A16/B6/C7
+[case study] SMILES 파싱 성공 ik14 = 29/29
+[case study] retention 보유 = 29
+[case study] DC50 보유(B/C) = 13 (B/C 행 13)
+[case study] Dmax 보유 = 13
+[case study] 수치형(비검열) DC50 = 5개: {'B3': 8.97, 'B6': 207.03, 'C1': 103.87, 'C5': 70.85, 'C6': 199.5}
+[case study] STAN AND 양성(DC50<100 AND Dmax>=80) = 0개 (max Dmax=76.0)  ← C20 기대 0
+[case study] DC50<100 단독 양성 = 2개: ['B3', 'C5']  ← C20 기대 B3,C5
+
+[누수] STAN train_compound_smiles unique ik14 = 968
+[누수] case study ∩ (STAN train ∪ 구DB) = 2개: ['B3', 'B5']  ← C5 기대 B3,B5
+        B3: ik14=QJZUVOHJKPMREF (STAN_train=True, old_db=True)
+        B5: ik14=IFCKDGNCNVHZTM (STAN_train=True, old_db=True)
+
+[저장] data/processed/{ar_old,ar_new,case_study_clean,leakage_report}.csv
+[저장] outputs/table1.csv

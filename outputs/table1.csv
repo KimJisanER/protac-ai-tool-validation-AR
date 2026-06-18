@@ -1,0 +1,4 @@
+dataset,n_rows,unique_ik14,dc50_miss_pct,dmax_miss_pct,note
+구DB AR (P10275),367,360,-,-,관측라벨 51 (양성25/음성26)
+신DB AR (P10275),777,658,78.5%,82.1%,new-only ik14=298 (구조분할 test 후보)
+case study (jm4c),29,29,55.2%,55.2%,"A16/B6/C7; 누수 ['B3', 'B5']"

@@ -1,0 +1,26 @@
+<!DOCTYPE html><html lang="ko"><head><meta charset="utf-8">
+<title>게재연도 분포 — AI검증 hold-out vs 기존 PROTAC-DB</title>
+<script src="https://cdn.plot.ly/plotly-2.35.2.min.js"></script>
+<style>body{margin:0;font-family:-apple-system,Segoe UI,'Noto Sans KR',sans-serif;background:#f8fafc}
+ header{padding:14px 20px;background:#fff;border-bottom:1px solid #e2e8f0} h1{margin:0;font-size:18px}
+ .sub{color:#64748b;font-size:13px;margin-top:4px} #c{height:46vh} #c2{height:40vh}
+ .row{padding:8px 20px;color:#334155;font-size:13px} b{color:#0f172a}</style></head><body>
+<header><h1>게재연도 분포 — AI 검증 hold-out vs 기존 PROTAC-DB</h1>
+<div class="sub">DOI→연도(Crossref) · 화합물(ik14)별 최초 게재연도 · 주황=검증 hold-out(prospective) / 회색=나머지(기존)</div></header>
+<div class="row">hold-out 중앙값 <b>2024</b> (n=774) · 기존 DB 중앙값 <b>2022</b> (n=8212) — 위=정규화(분포 형태 비교), 아래=실제 개수</div>
+<div id="c"></div><div id="c2"></div>
+<script>
+const D={"years": [2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018, 2019, 2020, 2021, 2022, 2023, 2024, 2025, 2026], "held": [0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 1, 2, 0, 3, 53, 236, 453, 25, 0], "rest": [1, 0, 3, 4, 4, 0, 0, 41, 4, 120, 228, 536, 1110, 865, 1459, 1195, 2567, 75, 0], "held_n": 774, "rest_n": 8212, "held_med": 2024, "rest_med": 2022};
+function pct(a){const s=a.reduce((x,y)=>x+y,0)||1;return a.map(v=>100*v/s);}
+const norm=[
+ {x:D.years,y:pct(D.rest),type:'bar',name:'기존 PROTAC-DB ('+D.rest_n+')',marker:{color:'rgba(148,163,184,0.75)'}},
+ {x:D.years,y:pct(D.held),type:'bar',name:'검증 hold-out ('+D.held_n+')',marker:{color:'rgba(249,115,22,0.85)'}}];
+Plotly.newPlot('c',norm,{barmode:'overlay',bargap:0.05,margin:{l:50,r:10,t:10,b:30},
+ yaxis:{title:'그룹 내 %'},xaxis:{title:'게재연도',dtick:1},legend:{x:0.01,y:0.99},
+ title:''},{responsive:true,displaylogo:false});
+const raw=[
+ {x:D.years,y:D.rest,type:'bar',name:'기존 PROTAC-DB',marker:{color:'rgba(148,163,184,0.75)'}},
+ {x:D.years,y:D.held,type:'bar',name:'검증 hold-out',marker:{color:'rgba(249,115,22,0.85)'}}];
+Plotly.newPlot('c2',raw,{barmode:'group',margin:{l:50,r:10,t:10,b:35},
+ yaxis:{title:'화합물 수'},xaxis:{title:'게재연도',dtick:1},legend:{x:0.01,y:0.99}},{responsive:true,displaylogo:false});
+</script></body></html>

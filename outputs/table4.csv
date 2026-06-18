@@ -1,0 +1,4 @@
+ID,parent,Smiles,MW,logP,TPSA,RotBond,glutarimide,AR_warhead_CN_Cl,AD_nn_Tanimoto,STAN_weak_prior(32-cohort),rationale
+D1,C1,O=C(NC1C(NC(CC1)=O)=O)C2=CC=C(N3CCN(C4CCN(C5=CC=C(C(N[C@H]6CC[C@H](OC7=CC(Cl)=C(C#N)C=C7)CC6)=O)C=C5)CC4)CC3)C(F)=C2,770.306,4.797,147.11,9,True,True,0.698,0.998,C1(103.87nM) 약리단 보존; CRBN benzamide ortho-F → 대사 soft-spot 차단·logD 미세상향. 링커/워헤드 불변.
+D2,C5,O=C(C1=CC=C(C=C1)C2CCN(CC2)CC(C3)CN3C4=CC=C(C(NC5CCC(NC5=O)=O)=O)C(C)=C4)N[C@@H](CC6)CC[C@H]6OC(C=C7)=CC(Cl)=C7C#N,751.328,5.491,143.87,10,True,True,0.654,0.995,"C5(70.85nM, 최고활성) 약리단 보존; phenyl-glutarimide ortho-Me → 링커 회전 제약(전엔트로피↓)·삼원복합체 가설. 워헤드 불변."
+D3,C6,O=C(C1=CC=C(F)C(=C1)C2CCN(CC2)CC3CCCN(C4=CC=C(C(NC5CCC(NC5=O)=O)=O)C=C4)C3)N[C@@H](CC6)CC[C@H]6OC(C=C7)=CC(Cl)=C7C#N,783.345,6.102,143.87,10,True,True,0.626,0.835,"C6(199.5nM, leakage-free 리드) 약리단 보존; AR 워헤드 인접 benzoyl 고리 F 도입 → darolutamide류 다중치환 모사, 결합 미세조정 가설."
