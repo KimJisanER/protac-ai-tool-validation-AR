@@ -32,7 +32,7 @@ cmd.ray(1300,1000); cmd.png(f"/home/kimjisan95/ar_protac_project/outputs/align_A
 cmd.hide("everything")
 cmd.show("cartoon","crbn_chain"); cmd.color("lightpink","crbn_chain"); cmd.set("cartoon_transparency",0.6,"CRBN_exp")
 cmd.show("cartoon","B3 and chain B"); cmd.color("orange","B3 and chain B"); cmd.set("cartoon_transparency",0.6,"B3")
-cmd.show("sticks", ligsel("CRBN_exp")); cmd.color("cyan", ligsel("CRBN_exp"))
+cmd.show("sticks", ligsel("CRBN_exp")); cmd.color("magenta", ligsel("CRBN_exp"))
 cmd.show("sticks","B3 and chain C"); cmd.color("yellow","B3 and chain C")
 cmd.orient(ligsel("CRBN_exp"))
 cmd.zoom(ligsel("CRBN_exp"), 8)
