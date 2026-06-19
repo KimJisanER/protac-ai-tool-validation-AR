@@ -1,25 +1,41 @@
 """
-투과 도구 머리맞대기: 동일 실측 Caco-2(PROTAC-TS 학습 데이터의 ground truth)에 대해
- - PROTAC-TS : held-out CV(별도 protacts_holdout_cv.py) Spearman≈0.77~0.81, R²≈0.5
- - Potts-Guy : 학습 없는 소분자 피부 QSPR 공식(자동 held-out)
-공정 비교를 위해 둘 다 '같은 실측 Caco-2'와의 순위상관으로 평가.
-출력(콘솔): Potts-Guy Spearman/Pearson, AD 밖 비율.
+Caco-2 투과 예측 3-way 비교 (동일 실측 Caco-2, 모두 held-out 기준):
+ (1) PROTAC-TS  : PROTAC 학습 ML — held-out CV는 protacts_holdout_cv.py / protacts_cv_check.py (Spearman≈0.78, R²≈0.5)
+ (2) descriptor 선형식 : 물성(TPSA·cLogP·MW·HBD·RotB·HBA) MLR을 직접 적합 + compound LOGO
+ (3) Potts-Guy : 학습 없는 소분자 피부 QSPR 공식 (자동 held-out)
+임의 계수를 지어내지 않으며, (2)는 데이터에 직접 적합해 계수를 공개한다.
 """
 import numpy as np, pandas as pd
 from rdkit import Chem, RDLogger
 from rdkit.Chem import Descriptors, Crippen
 RDLogger.DisableLog('rdApp.*')
+from sklearn.linear_model import LinearRegression
+from sklearn.model_selection import LeaveOneGroupOut
+from sklearn.metrics import r2_score
 from scipy.stats import spearmanr, pearsonr
 TS='/home/kimjisan95/PROTAC-TS'
 fea=pd.read_csv(f'{TS}/result/feature/test/fea_morganfp.csv'); raw=pd.read_csv(f'{TS}/data/PROTAC_Caco-2_data.csv')
 fea=fea[fea['cate']=='PROTAC'].reset_index(drop=True)
 fea['Smiles']=fea['Unnamed: 0'].map(lambda i: raw['Smiles'].iloc[int(i)])
-def feats(s):
-    m=Chem.MolFromSmiles(str(s)); return (Descriptors.MolWt(m), Crippen.MolLogP(m)) if m else (None,None)
-fea[['MW','logP']]=fea['Smiles'].apply(lambda s: pd.Series(feats(s)))
-fea['pottsguy_logKp']=0.71*fea['logP']-0.0061*fea['MW']-6.3   # Potts & Guy 1992 (skin)
-y=fea['log10Papp'].values                                     # 실측 Caco-2
-ad_out=((fea.MW>750)|(fea.logP>5)).mean()
-print(f"n={len(fea)} | MW {fea.MW.min():.0f}~{fea.MW.max():.0f} | Potts-Guy AD 밖(MW>750|logP>5) {ad_out*100:.0f}%")
-print(f"Potts-Guy vs 실측 Caco-2:  Spearman={spearmanr(fea.pottsguy_logKp,y)[0]:+.3f} | Pearson={pearsonr(fea.pottsguy_logKp,y)[0]:+.3f}")
-print("PROTAC-TS  vs 실측 Caco-2:  held-out CV Spearman≈0.77~0.81, R²≈0.5 (protacts_holdout_cv.py)")
+def ik14(s):
+    m=Chem.MolFromSmiles(str(s)); return Chem.MolToInchiKey(m)[:14] if m else None
+def desc(s):
+    m=Chem.MolFromSmiles(str(s))
+    return [Descriptors.TPSA(m),Crippen.MolLogP(m),Descriptors.MolWt(m),
+            Descriptors.NumHDonors(m),Descriptors.NumRotatableBonds(m),Descriptors.NumHAcceptors(m)]
+names=['TPSA','cLogP','MW','HBD','RotB','HBA']
+D=np.array([desc(s) for s in fea['Smiles']]); y=fea['log10Papp'].values; g=fea['Smiles'].map(ik14).values
+
+# (3) Potts-Guy (피부 공식, 학습 없음)
+pg=0.71*D[:,1]-0.0061*D[:,2]-6.3
+print(f"[Potts-Guy] vs 실측 Caco-2: Spearman={spearmanr(pg,y)[0]:+.3f} | Pearson={pearsonr(pg,y)[0]:+.3f} "
+      f"| AD밖(MW>750|logP>5) {((D[:,2]>750)|(D[:,1]>5)).mean()*100:.0f}%")
+# (2) descriptor MLR — compound LOGO
+yp=np.full(len(y),np.nan)
+for tr,te in LeaveOneGroupOut().split(D,y,g):
+    yp[te]=LinearRegression().fit(D[tr],y[tr]).predict(D[te])
+print(f"[descriptor MLR] compound LOGO held-out: R2={r2_score(y,yp):+.3f} | Spearman={spearmanr(y,yp)[0]:+.3f}")
+lr=LinearRegression().fit(D,y)
+print("  전체적합 계수: "+" ".join(f"{n}:{c:+.4f}" for n,c in zip(names,lr.coef_))+f" | 절편 {lr.intercept_:+.3f} | in-sample R2={lr.score(D,y):.3f}")
+print("[단일 descriptor Spearman] "+" ".join(f"{n}:{spearmanr(D[:,i],y)[0]:+.2f}" for i,n in enumerate(names)))
+print("[PROTAC-TS] held-out CV Spearman≈0.78(LOGO)/0.70(5-fold), R²≈0.5  (protacts_cv_check.py)")

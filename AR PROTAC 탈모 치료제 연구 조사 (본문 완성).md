@@ -183,18 +183,19 @@ LOOCV 0.776은 PROTAC-TS 보고값(R²≈0.78)을 재현하나 **같은 분자�
 
 **Potts-Guy와 직접 비교 (동일 실측 Caco-2 기준).** 학습이 없는 Potts-Guy 공식을 같은 화합물에 적용하면 실측 Caco-2와 **Spearman +0.13(Pearson +0.16, 사실상 무상관)** 으로, PROTAC-TS(held-out Spearman≈0.8)에 크게 못 미친다 — 이 세트가 MW 716–1459로 **85%가 Potts-Guy 소분자 적용도메인 밖**이기 때문이다. 즉 **PROTAC 투과 순위 예측은 학습된 전용 모델(PROTAC-TS) ≫ 일반 소분자 QSPR(Potts-Guy)**. 단 Potts-Guy는 본래 피부 Kp(다른 endpoint)용이고 그 검증값(피부 잔류)과도 Spearman 0.042로 무관해 PROTAC엔 어느 쪽으로도 부적합하다. (해석 ⑤-3)
 
-**[표4b] 투과 도구 비교 — PROTAC-TS vs Potts-Guy**
+**[표4b] Caco-2 투과 예측 — 학습 모델 vs 공식/선형식** (모두 동일 실측 Caco-2, held-out 기준)
 
-| 항목 | PROTAC-TS | Potts-Guy |
-|---|---|---|
-| 방식 | PROTAC 학습 ML(TabPFN, Morgan FP) | 일반 소분자 QSPR 공식(logP·MW, 학습 없음) |
-| 예측 endpoint | Caco-2 세포막 투과 | 피부 Kp(경피 투과) |
-| **동일 실측 Caco-2 Spearman** | **≈0.78**(LOGO)·0.70–0.72(5-fold) | **0.13**(무상관) |
-| 동일 실측 Caco-2 R² | ≈0.5(0.43–0.61) | N/A(스케일 미보정; Pearson 0.16) |
-| 실측 피부 잔류와 Spearman | +0.41(약함) | 0.042(무관) |
-| 적용도메인 | PROTAC 도메인 내 | **85% AD 밖**(MW 716–1459) |
-| 학습데이터 | PROTAC Caco-2 **61/62 포화** | 없음(고정 공식) |
-| 판정 | 순위 예측은 유효하나 **단독 불충분** | PROTAC 투과 예측에 **부적합** |
+| 항목 | PROTAC-TS (학습 ML) | Caco-2 descriptor 선형식 (직접 적합) | Potts-Guy (피부 공식) |
+|---|---|---|---|
+| 입력 | Morgan FP(substructure) | TPSA·cLogP·MW·HBD·RotB·HBA | logP·MW |
+| 예측 endpoint | Caco-2 | Caco-2 | 피부 Kp(Caco-2 전용 아님) |
+| **held-out Spearman** | **≈0.78**(LOGO)·0.70(5-fold) | **≈0.00** | 0.13 |
+| **held-out R²** | **≈0.5**(0.43–0.61) | **음수**(in-sample 0.10) | N/A(스케일 미보정) |
+| 실측 피부 잔류와 Spearman | +0.41(약함) | — | 0.042(무관) |
+| 적용도메인 | PROTAC 도메인 내 | — | **85% AD 밖**(MW 716–1459) |
+| 판정 | 순위 예측 유효(단 **단독 불충분**) | **실패** — 단순 물성으론 PROTAC Caco-2 설명 안 됨 | PROTAC 투과에 **부적합** |
+
+단일 descriptor도 전부 |Spearman|<0.17(TPSA −0.05·cLogP +0.14·HBD −0.17 등)로, Caco-2의 고전 인자 TPSA조차 bRo5 PROTAC에선 무력하다. 즉 **"Caco-2 공식"을 적합할 수는 있어도 일반화하지 못하며(held-out R² 음수), substructure를 학습한 PROTAC-TS(≈0.78)만이 순위를 잡아낸다** — 단순 물성→투과 매핑이 PROTAC에선 깨졌음을 보여준다.
 
 ### 4-3. (다) Co-fold 도구 — Boltz-2 삼원복합체 (B3 및 case study 전 29개) ([표5]·[그림4])
 리드 화합물 **B3(TJA-107)** 을 포함해 **case study 29개 전부**의 AR-LBD+CRBN+PROTAC 삼원복합체를 Boltz-2로 예측하였다(**29/29 성공**; AR-LBD·CRBN의 MSA는 1회 계산 후 전 화합물에 재사용).
