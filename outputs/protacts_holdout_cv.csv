@@ -1,0 +1,4 @@
+eval,R2,Spearman,n
+"row-level LOOCV (PROTAC-TS 재현, 중복화합물 누수 포함)",0.776,0.86,89
+compound group 5-fold (같은 화합물 누수 제거),0.516,0.771,89
+scaffold group 5-fold (새 골격 일반화 = 진짜 hold-out),0.692,0.808,89

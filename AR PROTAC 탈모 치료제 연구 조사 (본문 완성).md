@@ -119,7 +119,7 @@ AR-LBD의 PROTAC 삼원복합체(AR+E3+PROTAC) 실험 구조는 부재하다. �
 ### 4-1. (가) 분해 활성 도구 — 전체 타겟 전향적 검증 ([표2]·[표3]·[그림2])
 AR 한정 평가는 표본이 작아 도구의 일반 성능을 말할 수 없으므로, 평가를 **전체 타겟으로 확대**하였다. PROTAC-DB 3.0에서 PROTAC-STAN이 학습 때 보지 못한 **prospective 화합물 1,134개(51개 타겟, 양성 388/음성 746)** 를 주 test로 삼고, 여러 in-distribution 기준과 대조하였다.
 
-**[표2] PROTAC-STAN 분해예측 성능 — 평가 기반별** (`outputs/timesplit_metrics.csv`·`fig_testset_vs_holdout.png`; bootstrap 2,000회 CI, strict GT)
+**[표2] PROTAC-STAN 분해예측 성능 — 평가 기반별** (`outputs/timesplit_metrics.csv`·`fig_testset_vs_holdout.png`; bootstrap 2,000회 CI, strict GT; **n = 채점에 쓰인 활성 라벨 수**)
 
 | 평가 기반 | n | AUROC [95% CI] | 성격 |
 |---|---|---|---|
@@ -161,11 +161,23 @@ AR 한정 평가는 표본이 작아 도구의 일반 성능을 말할 수 없�
 
 → Ribes는 similarity split(0.90)은 유지하나 **target-split(0.58)만 무너진다 — 새 골격엔 강하나 새 타겟엔 약함**(STAN per-target 붕괴와 동일 메커니즘). 도구·모델·split·임계값을 달리해도 결론은 견고하다: **in-distribution ≈0.85~0.91 → 타겟 교차/전향적 ≈0.45~0.59**. "벤치마크 성능"은 일관되게 실사용(신규 타겟·신규 골격) 성능을 과대평가한다.
 
-### 4-2. (나) 투과성 도구 — 3중 도메인 구분의 실증 ([그림3]·[그림3b])
-- **Potts-Guy(피부 투과)**: 29개 logKp는 −8.22 ~ −6.74로 압축되었고, MW>750이 11/29·TPSA>140이 13/29로 전체의 44.8%가 적용도메인(AD) 밖이다. MW항 지배로 모든 PROTAC이 균일하게 낮은 logKp로 압축되어 변별력을 잃는다(예상된 결과). 절대 Kp는 정량 신뢰가 불가하다. 예측 logKp와 실측 피부 잔류의 Spearman은 0.042로, 피부 잔류(depot)와 피부 통과(Kp)가 물리적으로 다른 endpoint임을 보여준다([그림3] `outputs/fig3_separation.png`).
-- **PROTAC-TS(세포막 투과)**: PROTAC-DB Caco-2 약 90개로 TabPFN을 직접 학습(자체 LOOCV R²=0.78, `~/PROTAC-TS` make_model)해 29개를 예측하였다(누수 없음). 예측 세포막 투과는 실측 피부 잔류와 약한 양의 상관(Spearman +0.41), Potts-Guy 피부 logKp와는 무상관(−0.05)을 보였다([그림3b] `outputs/fig_protacts.png`).
+### 4-2. (나) 투과성 도구 — 3중 도메인 구분 + PROTAC-TS 전향 평가 ([표4]·[그림3])
+- **Potts-Guy(피부 투과)**: 29개 logKp는 −8.22 ~ −6.74로 압축되었고, MW>750이 11/29·TPSA>140이 13/29로 전체의 44.8%가 적용도메인(AD) 밖이다. MW항 지배로 모든 PROTAC이 균일하게 낮은 logKp로 압축되어 변별력을 잃는다. 예측 logKp와 실측 피부 잔류의 Spearman은 0.042로, 피부 잔류(depot)와 피부 통과(Kp)가 물리적으로 다른 endpoint임을 보여준다([그림3] `outputs/fig3_separation.png`).
+- **PROTAC-TS(세포막 투과)**: PROTAC-DB Caco-2 약 90개로 학습한 TabPFN으로 case study 29개를 예측하였다. 예측 세포막 투과는 실측 피부 잔류와 약한 양의 상관(Spearman +0.41), Potts-Guy 피부 logKp와는 무상관(−0.05)을 보였다([그림3b] `outputs/fig_protacts.png`).
 
-→ 세 endpoint 간 상관(요약): Caco-2 예측 vs 피부 잔류 **+0.41**(약한 양), Potts-Guy logKp vs 피부 잔류 **0.042**, Caco-2 예측 vs Potts-Guy logKp **−0.05**. 두 예측 모두 좁은 범위로 압축됨(변별력 제한). 카멜레온성은 2D proxy(TPSA vs 회전결합)로만 근사했고 3D EPSA 정량(min-3D-PSA·ΔPSA·IMHB 등)은 거대 PROTAC의 형태 샘플링 비용 문제로 다음 단계로 둔다. (도메인 비환원성 해석은 ⑤-3)
+→ 세 endpoint 간 상관(요약): Caco-2 예측 vs 피부 잔류 **+0.41**, Potts-Guy logKp vs 피부 잔류 **0.042**, Caco-2 예측 vs Potts-Guy logKp **−0.05** — 세 endpoint(세포막투과·피부투과·피부잔류)가 동일량으로 환원되지 않는다. (해석 ⑤-3)
+
+**PROTAC-TS 전향 일반화 평가 — 분해 도구와의 결정적 차이** ([표4] `outputs/protacts_holdout_cv.csv`). PROTAC-TS 학습셋이 PROTAC-DB Caco-2(A2B)의 **61/62를 이미 포함**해 외부 held-out이 사실상 없으므로(투과성 벤치마크 포화), 동일 데이터를 분할 기준을 달리해 재학습·평가하였다(채점 라벨 = **89개 측정·60 고유 화합물**).
+
+**[표4] PROTAC-TS Caco-2 — 분할 기준별 hold-out 성능** (라벨 89 측정/60 화합물)
+
+| 분할(hold-out 기준) | R² | Spearman |
+|---|---|---|
+| row-level LOOCV (보고값 0.78 재현; 중복 측정 누수 포함) | 0.776 | 0.860 |
+| compound group CV (같은 화합물 누수 제거) | 0.516 | 0.771 |
+| scaffold group CV (새 골격 일반화) | 0.692 | 0.808 |
+
+LOOCV 0.776은 PROTAC-TS 보고값(R²≈0.78)을 재현하나 중복 측정(89행/60화합물) 누수를 포함하고, **화합물·골격을 제대로 held-out하면 R²≈0.52~0.69·Spearman≈0.77~0.81**로 여전히 상당한 예측력을 유지한다. **분해 도구가 전향적으로 ~무작위(AUROC 0.57)로 붕괴한 것과 대조적으로, 투과(PROTAC-TS)는 held-out에서도 Spearman≈0.8을 유지** — 투과성은 분해 활성보다 훨씬 잘 일반화되며 평가한 도구 중 가장 성숙하다. 단 endpoint가 Caco-2로 좁고 학습셋이 가용 PROTAC Caco-2를 포화시켜 추가 전향 검증 여지가 작다. (해석 ⑤-3)
 
 ### 4-3. (다) Co-fold 도구 — Boltz-2 삼원복합체 (B3 및 case study 전 29개) ([표5]·[그림4])
 리드 화합물 **B3(TJA-107)** 을 포함해 **case study 29개 전부**의 AR-LBD+CRBN+PROTAC 삼원복합체를 Boltz-2로 예측하였다(**29/29 성공**; AR-LBD·CRBN의 MSA는 1회 계산 후 전 화합물에 재사용).
@@ -186,6 +198,8 @@ AR 한정 평가는 표본이 작아 도구의 일반 성능을 말할 수 없�
 ### 4-4. case study(AGA) 적용과 신규 분자 가설
 case study 29개에 PROTAC-STAN을 적용하면 leakage-free 활성 앵커(C5 70.85 nM, C1 103.87 nM, C6 199.5 nM)가 모두 상위에 랭크된다. 다만 누수 화합물 B3·B5의 확률은 오히려 낮았는데(0.25, 0.16), B5는 실측 비활성이라 정답 예측이고 활성인데 낮은 사례는 B3 한 건뿐이어서, 누수가 점수를 단순 부풀리지 않았음을 확인할 수 있다(소표본이라 정성 관찰). 한편 도구들의 한계가 드러난 만큼 신규 분자 3종(D1~D3; 부모 C1/C5/C6)은 **모델 점수가 아니라 SAR 규칙**(CRBN 글루타리미드 + enzalutamide-analog 워헤드 약리단 보존)에 근거해 제안하고, STAN 점수는 weak prior로만, Tanimoto 최근접 거리(0.63~0.70)와 "실험 검증 필요"를 동반해 제시한다(`outputs/table4.csv`).
 
+**예측확률 vs 실측 효력 산점도** ([그림5] `outputs/fig_pred_vs_actual.png`). 29개를 STAN·Ribes로 예측해 실측 DC50·Dmax(값 보유 B/C 13개)와 대조하면: **Ribes 예측은 0.76~0.79로 거의 일정해 변별력이 없고**(같은 타겟·E3·세포주 + 유사 골격), **STAN은 예측이 퍼지나 방향만 약하게 맞고(DC50 Spearman −0.28·Dmax +0.37) 일관성이 없다** — 최강 분해제 B3(DC50 8.97 nM)에 오히려 최저 확률(0.25)을 준다. 두 모델 모두 예측확률이 실측 효력으로 신뢰성 있게 매핑되지 않는다(소표본 n=13, B3·B5는 STAN 누수, Ribes는 case-study 세포주 미상이라 표준 AR 세포주 VCaP를 가정).
+
 ---
 
 ## ⑤ 결과에 대한 비판적 고찰 (가장 중요) — 도구는 충분히 성숙했는가?
@@ -197,7 +211,7 @@ case study 29개에 PROTAC-STAN을 적용하면 leakage-free 활성 앵커(C5 70
 | 도구 부류 | 보고/in-distribution | 본 검증(전향적·AR 사례) | 판정 |
 |---|---|---|---|
 | **분해 활성** | AUROC 0.85~0.91 | pooled 0.57·**타겟 내 ≈0.45(무작위 부근)**, 도구 간 순위 불안정·κ=0.13 | **미성숙** — 화합물 단위 변별 거의 불가 |
-| **투과성** | (소분자/펩타이드 검증) | Potts-Guy 44.8% AD 밖·압축, Caco-2 예측도 압축; 두 지표 무상관 | **제한적** — 변별력 낮고 도메인 비환원 |
+| **투과성** | (소분자/펩타이드 검증) | **PROTAC-TS held-out R²≈0.5–0.7·Spearman≈0.8**(분해보다 잘 일반화); Potts-Guy 44.8% AD 밖 | **상대적 성숙** — endpoint(Caco-2) 좁고 학습데이터 포화 |
 | **Co-fold** | (AF3급 일반 성능) | ligand_ipTM 0.937 / **protein_ipTM 0.671**(단일 시드) | **부분적** — 리간드 배치는 ○, 단백질 계면 불확실 |
 
 세부 근거는 다음과 같다.
@@ -206,7 +220,7 @@ case study 29개에 PROTAC-STAN을 적용하면 leakage-free 활성 앵커(C5 70
 
 **5-2. 순위의 불안정성과 도구 간 불일치.** 방법론이 전혀 다른 두 포켓-프리 도구(STAN: GNN+ESM, Ribes: FP+트리/MLP)를 동일 held-out에 적용했을 때, "어느 도구가 우수한가"라는 결론 자체가 **평가 설계에 따라 뒤집힌다**: pooled-STAN라벨에서는 Ribes(0.696)>STAN(0.550)이지만, Ribes를 그 자신이 학습한 라벨로 평가하면 0.491(무작위)로 떨어지고, 단일클래스 KRAS 블록을 제거하면 STAN이 0.427(무작위 이하)로 떨어지며, 타겟 구성을 통제한 macro에서는 셋 다 0.50~0.59로 수렴한다. 더욱이 두 도구의 예측은 서로 크게 불일치한다(활성확률 Spearman 0.19, Cohen κ=0.13 — 우연 수준을 겨우 넘는다). 따라서 **어느 단일 도구의 단일 숫자도 신약 설계의 독립 근거로 신뢰하기 어렵다.** 한편 논문들이 보고하는 0.85~0.91 AUROC(DegradeMaster PROTAC-1K 0.854·PROTAC-8K 0.882 포함)는 대부분 train/test가 chemotype을 공유하는 in-distribution split의 값으로, STAN의 학습-관측 0.909와 같은 낙관 영역이다. 게다가 이 도구들을 동일 held-out으로 공정 비교하는 것조차 불가능하다 — 구조 기반 도구가 구조를 가진 유일한 셋(PROTAC-8K)이 STAN 학습셋과 100%·Ribes와 68% 겹쳐, **분야 벤치마크 자체에 학습-평가 중첩(contamination)이 내재**하기 때문이다.
 
-**5-3. 투과 예측 — "투과성"은 단일 측정으로 환원되지 않는다.** Potts-Guy는 소분자 회귀식이라 bRo5 PROTAC의 44.8%가 적용도메인 밖이고, MW항 지배로 모든 화합물을 균일하게 낮은 logKp로 압축해 변별력을 잃는다. PROTAC-TS는 PROTAC으로 학습되어 도메인 안쪽이지만 예측값이 좁게 압축되어 역시 변별력이 제한된다. 세 endpoint 간 상관을 보면, **세포막 투과(Caco-2 예측)와 피부 잔류는 약한 양의 상관(+0.41)으로 일부 공통 의존(친유성)을 공유**하지만, **두 in-silico 투과 지표(Caco-2 예측 vs Potts-Guy logKp)는 서로 무관(−0.05)** 하고 피부 통과(Kp) vs 잔류도 무상관(0.042)이다. 즉 세 endpoint가 동일량으로 환원되지 않으며, 특히 두 계산 투과 지표가 서로를 예측하지 못한다는 점이 "permeability를 하나의 숫자로 다루는 것"의 위험을 보여준다. 더욱이 어떤 투과 모델도 모낭(follicular) 경로·유한용량·제형 효과를 반영하지 못하는데, 이는 두피 국소제의 핵심 메커니즘이다.
+**5-3. 투과 예측 — "투과성"은 단일 측정으로 환원되지 않는다.** Potts-Guy는 소분자 회귀식이라 bRo5 PROTAC의 44.8%가 적용도메인 밖이고, MW항 지배로 모든 화합물을 균일하게 낮은 logKp로 압축해 변별력을 잃는다. 반면 PROTAC-TS는 화합물·골격을 held-out해도 Caco-2를 Spearman≈0.8(R²≈0.5–0.7)로 비교적 잘 예측해(분해 도구의 ~무작위와 대조적) 평가한 도구 중 가장 성숙하다 — 다만 case-study 29개처럼 화합물이 서로 유사하면 예측이 좁게 압축되고, endpoint가 Caco-2로 좁으며 학습셋이 가용 PROTAC Caco-2를 사실상 포화시켜 추가 검증 여지가 작다. 세 endpoint 간 상관을 보면, **세포막 투과(Caco-2 예측)와 피부 잔류는 약한 양의 상관(+0.41)으로 일부 공통 의존(친유성)을 공유**하지만, **두 in-silico 투과 지표(Caco-2 예측 vs Potts-Guy logKp)는 서로 무관(−0.05)** 하고 피부 통과(Kp) vs 잔류도 무상관(0.042)이다. 즉 세 endpoint가 동일량으로 환원되지 않으며, 특히 두 계산 투과 지표가 서로를 예측하지 못한다는 점이 "permeability를 하나의 숫자로 다루는 것"의 위험을 보여준다. 더욱이 어떤 투과 모델도 모낭(follicular) 경로·유한용량·제형 효과를 반영하지 못하는데, 이는 두피 국소제의 핵심 메커니즘이다.
 
 **5-4. Co-fold — 그럴듯한 리간드 포즈, 불확실한 계면, 활성과 무관.** case study 29개 전부의 삼원복합체를 예측한 결과, 리간드 포즈 신뢰도는 일관되게 높았으나(ligand_ipTM 0.84~0.96) 삼원복합체 형성의 핵심인 단백질-단백질 계면(protein_ipTM)은 중간 수준이고 계열별 편차가 컸다(A 계열 0.43 vs B/C 0.67~0.68). 더 중요하게, **Boltz 신뢰도는 실측 분해 활성과 무의미한 상관**(ipTM vs −DC50 Spearman +0.30, n=5, p=0.62)이어서, 신뢰도가 높은 co-fold가 곧 활성 분해제를 의미하지 않는다. 모두 단일 시드 예측이므로 pLDDT·ipTM만으로 결합·활성을 단정해서는 안 된다.
 
@@ -235,8 +249,8 @@ case study 29개에 PROTAC-STAN을 적용하면 leakage-free 활성 앵커(C5 70
 
 ## 부록 — 재현 정보
 - **환경**: 메인 분석 `~/anaconda3/envs/protac`(Python 3.10, torch 2.8.0+cu128, RDKit 2026.03.1). 투과(PROTAC-TS) `protac_ts`(TabPFN). co-fold(Boltz-2) `protac_boltz`. 도구 교차검증(Ribes) `protac_ribes`.
-- **스크립트(`scripts/`)**: `phase0_freeze.py`, `fig1_chemspace.py`, `run_stan_inference.py`/`run_stan_ts.py`(STAN 추론), `timesplit_build.py`/`timesplit_eval.py`(전향적 평가), `multitool_eval.py`(STAN vs Ribes), `phase3_skin.py`(Potts-Guy), `protacts_predict.py`(PROTAC-TS Caco-2), `phase5_design.py`(신규 설계), `resolve_doi_years.py`/`build_pubdate_kde.py`(게재연도), `build_chemspace_html.py`(인터랙티브 화학공간), `stan_patch.py`, `stan_testset_build.py`(STAN 자체 train/test 평가), `boltz_all29_build.py`/`boltz_all29_collect.py`(co-fold 29개 생성·집계). Boltz 입력 `~/PROTAC_MTL_v5/boltz_{B3_ternary,all29}/`. Ribes 자체 test 메트릭은 `~/PROTAC-Degradation-Predictor/reports/`.
-- **산출물(`outputs/`)**: `table1~5.csv`, `timesplit_metrics.csv`·`timesplit_per_target.csv`·`multitool_metrics.csv`, 그림 `fig1_chemspace.png`·`ts_roc.png`·`ts_per_target.png`·`fig_multitool.png`·`fig3_separation.png`·`fig_protacts.png`·`pubdate_kde.png`·`fig_boltz_all29.png`·`fig_testset_vs_holdout.png`·`fig_alltools_selftest.png`·`fig_threshold_x_model.png`, `boltz_all29_confidence.csv`·`threshold_x_model.csv`, 인터랙티브 `chemspace_view1_AR.html`·`chemspace_view2_split.html`, Boltz 구조 29개 `~/PROTAC_MTL_v5/boltz_all29/out/.../predictions/<ID>/<ID>_model_0.pdb`(+ B3 별도).
+- **스크립트(`scripts/`)**: `phase0_freeze.py`, `fig1_chemspace.py`, `run_stan_inference.py`/`run_stan_ts.py`(STAN 추론), `timesplit_build.py`/`timesplit_eval.py`(전향적 평가), `multitool_eval.py`(STAN vs Ribes), `phase3_skin.py`(Potts-Guy), `protacts_predict.py`(PROTAC-TS Caco-2), `phase5_design.py`(신규 설계), `resolve_doi_years.py`/`build_pubdate_kde.py`(게재연도), `build_chemspace_html.py`(인터랙티브 화학공간), `stan_patch.py`, `stan_testset_build.py`(STAN 자체 train/test 평가), `protacts_holdout_cv.py`(PROTAC-TS Caco-2 hold-out CV), `boltz_all29_build.py`/`boltz_all29_collect.py`(co-fold 29개 생성·집계). Boltz 입력 `~/PROTAC_MTL_v5/boltz_{B3_ternary,all29}/`. Ribes 자체 test 메트릭은 `~/PROTAC-Degradation-Predictor/reports/`.
+- **산출물(`outputs/`)**: `table1~5.csv`, `timesplit_metrics.csv`·`timesplit_per_target.csv`·`multitool_metrics.csv`, 그림 `fig1_chemspace.png`·`ts_roc.png`·`ts_per_target.png`·`fig_multitool.png`·`fig3_separation.png`·`fig_protacts.png`·`pubdate_kde.png`·`fig_boltz_all29.png`·`fig_testset_vs_holdout.png`·`fig_alltools_selftest.png`·`fig_threshold_x_model.png`·`fig_pred_vs_actual.png`, `boltz_all29_confidence.csv`·`threshold_x_model.csv`·`protacts_holdout_cv.csv`·`ribes_29_probs.csv`, 인터랙티브 `chemspace_view1_AR.html`·`chemspace_view2_split.html`, Boltz 구조 29개 `~/PROTAC_MTL_v5/boltz_all29/out/.../predictions/<ID>/<ID>_model_0.pdb`(+ B3 별도).
 
 ---
 

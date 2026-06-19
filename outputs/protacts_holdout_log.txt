@@ -1,0 +1,8 @@
+PROTAC-TS Caco-2 데이터: 89개 측정(행) | 고유 화합물(ik14) 60 | 고유 Murcko scaffold 59
+
+[PROTAC-TS Caco-2 — 분할 기준별 hold-out 성능]
+  row-level LOOCV (PROTAC-TS 재현, 중복화합물 누수 포함): R2=+0.776 | Spearman=+0.860 | n(라벨)=89
+  compound group 5-fold (같은 화합물 누수 제거): R2=+0.516 | Spearman=+0.771 | n(라벨)=89
+  scaffold group 5-fold (새 골격 일반화 = 진짜 hold-out): R2=+0.692 | Spearman=+0.808 | n(라벨)=89
+
+[저장] /home/kimjisan95/ar_protac_project/outputs/protacts_holdout_cv.csv
