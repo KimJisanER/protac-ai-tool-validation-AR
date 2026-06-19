@@ -1,0 +1,4 @@
+model,AUROC_strict,AUROC_native
+PROTAC-STAN,0.55,0.559
+Ribes-standard,0.696,0.491
+Ribes-target,0.685,0.577

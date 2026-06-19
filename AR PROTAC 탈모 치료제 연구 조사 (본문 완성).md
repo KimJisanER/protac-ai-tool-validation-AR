@@ -160,6 +160,16 @@ AR 한정 평가는 표본이 작아 도구의 일반 성능을 말할 수 없�
 
 > Ribes 전향적의 두 값은 **같은 예측·같은 hold-out에 정답 라벨 기준만 다른 것**이다 — strict(STAN 기준 `DC50<100nM & Dmax≥80%`, 양성 388/1,134=34%)에선 0.696, native(Ribes 기준 `DC50≤1000nM & Dmax≥60%`, 양성 798/1,134=70%)에선 0.491. 두 기준에서 라벨이 뒤바뀌는 화합물이 **410개(36%, 전부 DC50 100–1000nM·Dmax 60–80% 중간대)** 라 양성 집합이 34%↔70%로 바뀌고, 그 결과 같은 점수가 0.49↔0.70으로 흔들린다. 분야에 합의된 활성 임계값이 없어 채점 기준에 따라 순위가 흔들린다는 ⑤-2의 직접 증거다.
 
+**[표3c] 두 라벨 기준을 양 모델에 모두 적용 — 동일 hold-out(n=786)** ([그림2-6] `outputs/fig_threshold_x_model.png`)
+
+| 모델 | strict GT (양성 29%) | native GT (양성 70%) |
+|---|---|---|
+| PROTAC-STAN | 0.550 [0.51, 0.59] | 0.559 [0.51, 0.60] |
+| Ribes-standard | **0.696** [0.65, 0.74] | 0.491 [0.45, 0.53] |
+| Ribes-target | 0.685 [0.64, 0.73] | **0.577** [0.54, 0.62] |
+
+같은 셋·같은 예측에 두 임계값을 모두 적용하면: (1) **순위가 뒤집힌다** — strict에선 Ribes-standard(0.696)가 1위지만 native에선 0.491로 STAN보다도 낮은 꼴찌가 된다. (2) **STAN은 두 기준에서 0.55~0.56으로 안정적**(strict형 라벨로 학습된 영향), Ribes-standard는 0.49~0.70으로 가장 크게 출렁인다. (3) 그럼에도 **모든 칸이 0.49~0.70(무작위 부근)** 이라 "전향적으로 미성숙"이라는 절대 결론은 임계값과 무관하게 불변이다. 즉 라벨 기준은 *상대 순위*를 바꾸지만 *절대 성능*은 못 바꾼다.
+
 → 도구·모델·split을 달리해도 결론은 견고하다: **in-distribution(random) ≈0.85~0.91 → 타겟 교차/전향적 ≈0.45~0.59**. "벤치마크 성능"은 일관되게 실사용(신규 타겟·신규 골격) 성능을 과대평가한다.
 
 ### 4-2. (나) 투과성 도구 — 3중 도메인 구분의 실증 ([표4]·[그림3])
@@ -237,7 +247,7 @@ case study 29개에 PROTAC-STAN을 적용하면 leakage-free 활성 앵커(C5 70
 ## 부록 — 재현 정보
 - **환경**: 메인 분석 `~/anaconda3/envs/protac`(Python 3.10, torch 2.8.0+cu128, RDKit 2026.03.1). 투과(PROTAC-TS) `protac_ts`(TabPFN). co-fold(Boltz-2) `protac_boltz`. 도구 교차검증(Ribes) `protac_ribes`.
 - **스크립트(`scripts/`)**: `phase0_freeze.py`, `fig1_chemspace.py`, `run_stan_inference.py`/`run_stan_ts.py`(STAN 추론), `timesplit_build.py`/`timesplit_eval.py`(전향적 평가), `multitool_eval.py`(STAN vs Ribes), `phase3_skin.py`(Potts-Guy), `protacts_predict.py`(PROTAC-TS Caco-2), `phase5_design.py`(신규 설계), `resolve_doi_years.py`/`build_pubdate_kde.py`(게재연도), `build_chemspace_html.py`(인터랙티브 화학공간), `stan_patch.py`, `stan_testset_build.py`(STAN 자체 train/test 평가), `boltz_all29_build.py`/`boltz_all29_collect.py`(co-fold 29개 생성·집계). Boltz 입력 `~/PROTAC_MTL_v5/boltz_{B3_ternary,all29}/`. Ribes 자체 test 메트릭은 `~/PROTAC-Degradation-Predictor/reports/`.
-- **산출물(`outputs/`)**: `table1~5.csv`, `timesplit_metrics.csv`·`timesplit_per_target.csv`·`multitool_metrics.csv`, 그림 `fig1_chemspace.png`·`ts_roc.png`·`ts_per_target.png`·`fig_multitool.png`·`fig3_separation.png`·`fig_protacts.png`·`pubdate_kde.png`·`fig_boltz_all29.png`·`fig_testset_vs_holdout.png`·`fig_alltools_selftest.png`, `boltz_all29_confidence.csv`, 인터랙티브 `chemspace_view1_AR.html`·`chemspace_view2_split.html`, Boltz 구조 29개 `~/PROTAC_MTL_v5/boltz_all29/out/.../predictions/<ID>/<ID>_model_0.pdb`(+ B3 별도).
+- **산출물(`outputs/`)**: `table1~5.csv`, `timesplit_metrics.csv`·`timesplit_per_target.csv`·`multitool_metrics.csv`, 그림 `fig1_chemspace.png`·`ts_roc.png`·`ts_per_target.png`·`fig_multitool.png`·`fig3_separation.png`·`fig_protacts.png`·`pubdate_kde.png`·`fig_boltz_all29.png`·`fig_testset_vs_holdout.png`·`fig_alltools_selftest.png`·`fig_threshold_x_model.png`, `boltz_all29_confidence.csv`·`threshold_x_model.csv`, 인터랙티브 `chemspace_view1_AR.html`·`chemspace_view2_split.html`, Boltz 구조 29개 `~/PROTAC_MTL_v5/boltz_all29/out/.../predictions/<ID>/<ID>_model_0.pdb`(+ B3 별도).
 
 ---
 
