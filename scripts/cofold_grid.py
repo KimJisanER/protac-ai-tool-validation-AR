@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt, matplotlib.image as mpimg
 TILE='/home/kimjisan95/ar_protac_project/outputs/tiles'
 OUT='/home/kimjisan95/ar_protac_project/outputs/cofold_grid_BCA.png'
 order=[f'B{i}' for i in range(1,7)]+[f'C{i}' for i in range(1,8)]+[f'A{i}' for i in range(1,17)]  # 29
-ncol,nrow=10,3
-fig,axes=plt.subplots(nrow,ncol,figsize=(ncol*1.7,nrow*1.7+0.4))
+ncol,nrow=3,10
+fig,axes=plt.subplots(nrow,ncol,figsize=(ncol*2.0,nrow*2.0+0.5))
 fig.patch.set_facecolor('black')
 for k,ax in enumerate(axes.flat):
     ax.set_facecolor('black'); ax.set_xticks([]); ax.set_yticks([])
@@ -21,7 +21,7 @@ for k,ax in enumerate(axes.flat):
     else:
         ax.axis('off')
 # 색 범례(흰 글씨)
-fig.text(0.5,0.985,'AR-LBD = skyblue    CRBN = orange    PROTAC = green   (CRBN-aligned, common view)',
-         color='white',ha='center',va='top',fontsize=11)
-plt.subplots_adjust(left=0.002,right=0.998,top=0.965,bottom=0.005,wspace=0.02,hspace=0.02)
+fig.text(0.5,0.992,'AR-LBD = skyblue   CRBN = orange   PROTAC = green   (CRBN-aligned, common view)',
+         color='white',ha='center',va='top',fontsize=9)
+plt.subplots_adjust(left=0.003,right=0.997,top=0.985,bottom=0.004,wspace=0.02,hspace=0.02)
 plt.savefig(OUT,dpi=150,facecolor='black'); print('[저장]',OUT)
