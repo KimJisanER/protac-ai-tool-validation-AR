@@ -218,6 +218,8 @@ case study 29개에 PROTAC-STAN을 적용하면 leakage-free 활성 앵커(C5 70
 
 **예측확률 vs 실측 효력 산점도** ([그림5] `outputs/fig_pred_vs_actual.png`). 29개를 STAN·Ribes로 예측해 실측 DC50·Dmax(값 보유 B/C 13개)와 대조하면: **Ribes 예측은 0.76~0.79로 거의 일정해 변별력이 없고**(같은 타겟·E3·세포주 + 유사 골격), **STAN은 예측이 퍼지나 방향만 약하게 맞고(DC50 Spearman −0.28·Dmax +0.37) 일관성이 없다** — 최강 분해제 B3(DC50 8.97 nM)에 오히려 최저 확률(0.25)을 준다. 두 모델 모두 예측확률이 실측 효력으로 신뢰성 있게 매핑되지 않는다(소표본 n=13, B3·B5는 STAN 누수, Ribes는 case-study 세포주 미상이라 표준 AR 세포주 VCaP를 가정).
 
+**case study 29개 구조·라벨 한눈 정리** ([그림6] `outputs/mol_grid_BCA.png`). 29개 분자를 MCS로 같은 방향 정렬해 2D 구조를 나열하고, 각 분자에 실측 DC50/Dmax·good-degrader 여부(STAN 기준 `DC50<100nM & Dmax≥80%`)·STAN 예측을 함께 표시하였다. 두 가지가 드러난다: (1) **STAN 기준으로는 13개 모두 good-degrader가 아니다**(Dmax 최대 76%로 80% 미달) — 즉 도구의 학습 임계값이 이 중등도-Dmax AR 분해제들을 모두 음성으로 본다. (2) 그럼에도 **STAN은 C5·C3·C7·C1 등 다수를 good으로 예측하고, 정작 최강 분해제 B3(9 nM)는 not-good(p=0.25)으로 예측**해 예측이 실측 효력과 체계적으로 어긋난다. (해석 ⑤-1·⑤-2)
+
 ---
 
 ## ⑤ 결과에 대한 비판적 고찰 (가장 중요) — 도구는 충분히 성숙했는가?
@@ -268,7 +270,7 @@ case study 29개에 PROTAC-STAN을 적용하면 leakage-free 활성 앵커(C5 70
 ## 부록 — 재현 정보
 - **환경**: 메인 분석 `~/anaconda3/envs/protac`(Python 3.10, torch 2.8.0+cu128, RDKit 2026.03.1). 투과(PROTAC-TS) `protac_ts`(TabPFN). co-fold(Boltz-2) `protac_boltz`. 도구 교차검증(Ribes) `protac_ribes`.
 - **스크립트(`scripts/`)**: `phase0_freeze.py`, `fig1_chemspace.py`, `run_stan_inference.py`/`run_stan_ts.py`(STAN 추론), `timesplit_build.py`/`timesplit_eval.py`(전향적 평가), `multitool_eval.py`(STAN vs Ribes), `phase3_skin.py`(Potts-Guy), `protacts_predict.py`(PROTAC-TS Caco-2), `phase5_design.py`(신규 설계), `resolve_doi_years.py`/`build_pubdate_kde.py`(게재연도), `build_chemspace_html.py`(인터랙티브 화학공간), `stan_patch.py`, `stan_testset_build.py`(STAN 자체 train/test 평가), `protacts_holdout_cv.py`·`protacts_cv_check.py`(PROTAC-TS Caco-2 hold-out CV·LOGO·중복분석)·`permeability_compare.py`(Potts-Guy vs PROTAC-TS), `boltz_all29_build.py`/`boltz_all29_collect.py`(co-fold 29개 생성·집계). Boltz 입력 `~/PROTAC_MTL_v5/boltz_{B3_ternary,all29}/`. Ribes 자체 test 메트릭은 `~/PROTAC-Degradation-Predictor/reports/`.
-- **산출물(`outputs/`)**: `table1~5.csv`, `timesplit_metrics.csv`·`timesplit_per_target.csv`·`multitool_metrics.csv`, 그림 `fig1_chemspace.png`·`ts_roc.png`·`ts_per_target.png`·`fig_multitool.png`·`fig3_separation.png`·`fig_protacts.png`·`pubdate_kde.png`·`fig_boltz_all29.png`·`fig_testset_vs_holdout.png`·`fig_alltools_selftest.png`·`fig_threshold_x_model.png`·`fig_pred_vs_actual.png`, `boltz_all29_confidence.csv`·`threshold_x_model.csv`·`protacts_holdout_cv.csv`·`ribes_29_probs.csv`, 인터랙티브 `chemspace_view1_AR.html`·`chemspace_view2_split.html`, Boltz 구조 29개 `~/PROTAC_MTL_v5/boltz_all29/out/.../predictions/<ID>/<ID>_model_0.pdb`(+ B3 별도).
+- **산출물(`outputs/`)**: `table1~5.csv`, `timesplit_metrics.csv`·`timesplit_per_target.csv`·`multitool_metrics.csv`, 그림 `fig1_chemspace.png`·`ts_roc.png`·`ts_per_target.png`·`fig_multitool.png`·`fig3_separation.png`·`fig_protacts.png`·`pubdate_kde.png`·`fig_boltz_all29.png`·`fig_testset_vs_holdout.png`·`fig_alltools_selftest.png`·`fig_threshold_x_model.png`·`fig_pred_vs_actual.png`·`mol_grid_BCA.png`, `boltz_all29_confidence.csv`·`threshold_x_model.csv`·`protacts_holdout_cv.csv`·`ribes_29_probs.csv`, 인터랙티브 `chemspace_view1_AR.html`·`chemspace_view2_split.html`, Boltz 구조 29개 `~/PROTAC_MTL_v5/boltz_all29/out/.../predictions/<ID>/<ID>_model_0.pdb`(+ B3 별도).
 
 ---
 
