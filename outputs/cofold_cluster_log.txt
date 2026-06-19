@@ -1,0 +1,28 @@
+29개 정렬 완료(CRBN 기준). AR-LBD CA=251개
+AR-LBD 상대 RMSD: 평균 51.4Å, 최대 98.3Å
+  K=2: silhouette=0.722, 크기=[14, 15]
+  K=3: silhouette=0.661, 크기=[14, 6, 9]
+  K=4: silhouette=0.670, 크기=[14, 6, 6, 3]
+  K=5: silhouette=0.584, 크기=[13, 1, 6, 6, 3]
+  K=6: silhouette=0.569, 크기=[13, 1, 6, 6, 2, 1]
+[선택] K=2 (silhouette=0.722)
+
+[클러스터별 구성]
+  C1 (n=14): {'B': 6, 'C': 6, 'A': 2} | DC50보유 12
+  C2 (n=15): {'A': 14, 'C': 1} | DC50보유 1
+
+[DC50/Dmax 클러스터간 차이 — 값 보유 13개]
+  C1 (n=12): Dmax 중앙 49% (범위 15-76) | DC50 수치형 5개 중앙 103.9nM
+  C2 (n=1): Dmax 중앙 49% (범위 49-49) | DC50 수치형 0개 중앙 nannM
+
+[값 보유 13개(B/C) 한정 재클러스터링 — 구조 vs DC50/Dmax]
+  13개 AR-LBD 상대 RMSD: 평균 19.9Å (최대 83.1Å)
+  K=2: 크기=[12, 1]
+    sub1 (n=12): Dmax 중앙 49% | DC50 수치형 5개 | 멤버 ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'C1', 'C2', 'C3', 'C5', 'C6', 'C7']
+    sub2 (n=1): Dmax 중앙 49% | DC50 수치형 0개 | 멤버 ['C4']
+  K=3: 크기=[11, 1, 1]
+    sub1 (n=11): Dmax 중앙 50% | DC50 수치형 5개 | 멤버 ['B1', 'B2', 'B3', 'B4', 'B5', 'B6', 'C1', 'C3', 'C5', 'C6', 'C7']
+    sub2 (n=1): Dmax 중앙 15% | DC50 수치형 0개 | 멤버 ['C2']
+    sub3 (n=1): Dmax 중앙 49% | DC50 수치형 0개 | 멤버 ['C4']
+
+[저장] 정렬PDB /home/kimjisan95/ar_protac_project/outputs/cofold_aligned/, 클러스터 CSV, fig_cofold_clusters.png, view_cofold_clusters.pml

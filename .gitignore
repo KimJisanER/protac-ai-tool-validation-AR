@@ -22,3 +22,6 @@ jm4c02226_si_002.csv
 
 # ── 대용량 캐시(원하면 주석 해제하여 포함) ──
 # data/processed/chemspace_coords.csv
+
+# co-fold 정렬 PDB(13MB, cofold_cluster.py로 재생성)
+outputs/cofold_aligned/
