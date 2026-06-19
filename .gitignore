@@ -25,3 +25,6 @@ jm4c02226_si_002.csv
 
 # co-fold 정렬 PDB(13MB, cofold_cluster.py로 재생성)
 outputs/cofold_aligned/
+
+# 실험 참조 PDB(RCSB에서 재다운로드 가능)
+outputs/ref_pdb/
