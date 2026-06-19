@@ -116,61 +116,50 @@ AR-LBD의 PROTAC 삼원복합체(AR+E3+PROTAC) 실험 구조는 부재하다. �
 ### 4-0. 화학공간 — AR PROTAC은 명백한 bRo5 ([그림1] `outputs/fig1_chemspace.png`)
 세 데이터를 Morgan FP–PCA로 투영(PC1 20.8%, PC2 9.5%, 합 30.3%)하면, B/C 시리즈는 MW 725~792·TPSA 144~155로 Ro5 선(MW=500, TPSA=140)을 명백히 위반하고 bRo5 상한(MW≈1000, TPSA≈250; Doak 2014)²² 영역에 위치한다. A 시리즈(MW 466~597)는 상대적으로 작다. 전체 PROTAC-DB와 AR 부분의 인터랙티브 화학공간은 `chemspace_view1_AR.html`로 함께 제공한다.
 
-### 4-1. (가) 분해 활성 도구 — 전체 타겟 전향적 검증 ([표2]·[그림2])
-AR 한정 평가는 표본이 작아 도구의 일반 성능을 말할 수 없으므로, 평가를 **전체 타겟으로 확대**하였다. PROTAC-DB 3.0에서 PROTAC-STAN이 학습 때 보지 못한 **prospective 화합물 1,134개(51개 타겟, 양성 388/음성 746)** 를 test로, 학습에 포함된 **281개** 를 memorization 대조군으로 분리해 동일 기준으로 평가하였다.
+### 4-1. (가) 분해 활성 도구 — 전체 타겟 전향적 검증 ([표2]·[표3]·[그림2])
+AR 한정 평가는 표본이 작아 도구의 일반 성능을 말할 수 없으므로, 평가를 **전체 타겟으로 확대**하였다. PROTAC-DB 3.0에서 PROTAC-STAN이 학습 때 보지 못한 **prospective 화합물 1,134개(51개 타겟, 양성 388/음성 746)** 를 주 test로 삼고, 여러 in-distribution 기준과 대조하였다.
 
-**[표2] PROTAC-STAN 전향적 분해예측 성능** (`outputs/timesplit_metrics.csv`; bootstrap 2,000회 CI)
+**[표2] PROTAC-STAN 분해예측 성능 — 평가 기반별** (`outputs/timesplit_metrics.csv`·`fig_testset_vs_holdout.png`; bootstrap 2,000회 CI, strict GT)
 
-| 코호트 | n | AUROC [95% CI] | AUPR | MCC |
+| 평가 기반 | n | AUROC [95% CI] | 성격 |
+|---|---|---|---|
+| 학습셋 재채점 | 1,296 | 0.971 | 암기 상한 |
+| STAN 자체 test set | 207 | 0.910 [0.867, 0.949] | in-distribution (STAN 공개 벤치마크) |
+| leaked (DB3.0 ∩ STAN학습) | 281 | 0.909 [0.873, 0.941] | in-distribution 대조 |
+| **전향적 hold-out (전체)** | **1,134** | **0.574** [0.539, 0.607] | **OOD — 주 결과** |
+| 전향적 hold-out (Ribes 공통 부분집합) | 786 | 0.550 [0.510, 0.588] | OOD, STAN↔Ribes 비교 기반 |
+| 전향적 hold-out — AR(P10275) | 42 | 0.702 [0.524, 0.854] | AGA 타겟 |
+
+- **in-distribution(자체 test 0.910·leaked 0.909·train 0.971)이 전향적 hold-out 0.574(MCC 0.098)로 붕괴**한다([그림2-1] `ts_roc.png`·[그림2-4] `fig_testset_vs_holdout.png`). in-distribution 기준을 STAN 공식 test로 잡든 leaked로 잡든 결론은 같다(둘 다 ≈0.91).
+- STAN 성능은 **1,134(0.574)·786(0.550)에서 일관**되게 무작위 부근이다(786 = Ribes와 공통 예측 가능한 부분집합, 아래 [표3]).
+- 타겟별로는 AUROC 중앙값 0.448·ERα(n=258) 0.276이고 양성-음성 쌍의 약 93%가 타겟 간(cross-target) 쌍이다([그림2-2] `ts_per_target.png`). AR은 0.702(n=42)지만 표본이 작다. (해석 ⑤-1)
+
+**STAN vs Ribes — 공통 786개.** STAN은 서열(ESM)만으로 1,134 전부 예측하지만 **Ribes는 세포주·E3·타겟이 모두 자기 학습 어휘에 있어야** 해 786개만 예측 가능하다(신규 화합물의 ~31%는 적용 도메인 밖이라 예측 불가 — 그 자체가 한계). 공정 비교를 위해 두 도구가 **공통 예측한 786개**에 **두 활성 임계값을 양쪽 모두**에 적용하였다([표3], [그림2-3] `fig_multitool.png`·[그림2-6] `fig_threshold_x_model.png`).
+
+**[표3] 동일 786개에서 STAN vs Ribes — 임계값·렌즈별 AUROC** (`outputs/multitool_metrics.csv`·`threshold_x_model.csv`)
+
+| 모델 | strict GT(양성29%) | native GT(양성70%) | KRAS 제외(strict) | 타겟별 macro |
 |---|---|---|---|---|
-| **prospective (학습 미관측)** | 1,134 | **0.574** [0.539, 0.607] | 0.379 | 0.098 |
-| leaked (학습 관측, 대조) | 281 | **0.909** [0.873, 0.941] | 0.895 | 0.687 |
-| prospective–AR (P10275) | 42 | 0.702 [0.524, 0.854] | 0.700 | 0.347 |
+| PROTAC-STAN | 0.550 [0.51,0.59] | 0.559 [0.51,0.60] | 0.427 | 0.531 |
+| Ribes-standard (random-CV) | **0.696** [0.65,0.74] | 0.491 [0.45,0.53] | 0.618 | 0.593 |
+| Ribes-target (group-CV) | 0.685 [0.64,0.73] | **0.577** [0.54,0.62] | 0.670 | 0.501 |
 
-- 학습-관측 AUROC 0.909 vs 학습-미관측 0.574(MCC 0.098)([그림2-1] `outputs/ts_roc.png`).
-- 타겟별 분해: AUROC 중앙값 0.448(양·음 모두 있는 14개 타겟), n-가중 타겟 내 AUROC ≈ 0.45, 가장 큰 타겟 ERα(n=258) 0.276; 양성-음성 쌍의 약 93%가 타겟 간(cross-target) 쌍([그림2-2] `outputs/ts_per_target.png`).
-- AGA 타겟 AR은 미관측 AUROC 0.702(n=42, CI[0.52, 0.85]). (이상 수치의 해석은 ⑤-1)
+*strict = `DC50<100nM & Dmax≥80%`(양성 29%), native = `DC50≤1000nM & Dmax≥60%`(양성 70%); 두 기준에서 라벨이 뒤바뀌는 화합물 410개(36%, 전부 DC50 100–1000nM·Dmax 60–80% 중간대).*
 
-**STAN 자체 test set으로의 교차 확인** ([그림2-4] `outputs/fig_testset_vs_holdout.png`). 위의 "학습-관측(leaked)" 기준 대신 PROTAC-STAN이 공개한 **자체 test set(207개, 학습 미사용)** 으로 평가해도 AUROC **0.910** [0.867, 0.949]로, 본 연구의 leaked(0.909)와 사실상 동일하다. 학습셋 재채점은 0.971(암기 상한). 즉 in-distribution 기준을 STAN 공식 test set으로 택하든 leaked로 택하든 결론은 같다 — **in-distribution ≈0.91 vs 전향적 0.574**의 격차(일반화 실패)는 기준 선택의 산물이 아니다. leaked를 함께 쓴 이유는 전향적 hold-out과 **데이터 출처·라벨링·파이프라인을 동일하게 유지한 채** "STAN이 골격을 봤는가"만 달리한 apples-to-apples 대조이기 때문이다.
+- **순위가 평가 설계에 따라 뒤집힌다**: strict에선 Ribes-standard(0.696)가 1위지만 native에선 0.491로 STAN보다 낮은 꼴찌가 된다. KRAS 단일클래스 블록(786 중 214개 거의 전부 음성) 제거 시 STAN 0.427, 타겟 구성을 통제한 타겟별 macro는 셋 다 0.50–0.59다.
+- **STAN은 임계값에 둔감**(0.55~0.56)하나 Ribes-standard는 0.49~0.70으로 가장 크게 출렁인다. 두 도구의 일치도는 활성확률 Spearman 0.19·Cohen κ=0.13으로 낮다. **그럼에도 모든 칸이 무작위 부근**이라 "전향적 미성숙" 결론은 임계값·렌즈와 무관하다. (해석 ⑤-2)
 
-**도구 간 교차검증.** 방법론이 전혀 다른 포켓-프리 예측기 **Ribes**(FP+XGBoost/MLP)를 두 도구 모두 학습에 보지 못한 동일 786개에 적용해 비교하였다([표3] `outputs/multitool_metrics.csv`, [그림2-3] `outputs/fig_multitool.png`).
+**DegradeMaster 및 도구 공통 패턴.** 구조 기반 DegradeMaster는 화합물마다 3원 pocket이 필요해 본 세트에 적용할 수 없어 저자 보고값만 인용한다(supervised PROTAC-1K 0.854·semisupervised PROTAC-8K random 0.882)²⁸; 이 셋을 단일 held-out으로 공정 비교할 수도 없다(PROTAC-8K가 STAN 학습셋과 **100%**·Ribes와 **68%** 중첩). 각 도구의 *자체* 평가만 봐도 패턴은 같다([표3b]·[그림2-5] `fig_alltools_selftest.png`).
 
-**[표3] 동일 786개에서 STAN vs Ribes — 분석 렌즈별 AUROC**
+**[표3b] 도구별 자체 평가: random split vs 타겟 교차** (각 도구 자체 리포트 기준)
 
-| 도구 | pooled (STAN 라벨) | Ribes 학습 라벨 | KRAS 제외 | 타겟별 macro |
-|---|---|---|---|---|
-| PROTAC-STAN | 0.550 | 0.559 | **0.427** | 0.531 |
-| Ribes (random-CV) | 0.696 | **0.491** | 0.618 | 0.593 |
-| Ribes (group-CV) | 0.685 | 0.577 | 0.670 | 0.501 |
+| 도구 | random / in-dist | 타겟 교차(target-split) | similarity split |
+|---|---|---|---|
+| PROTAC-STAN | 0.910 (자체 test) | 0.531 (per-target macro) | — |
+| Ribes (XGBoost) | 0.906 | **0.585** | 0.897 |
+| DegradeMaster | 0.854·0.882 | 측정 불가(구조 필요) | — |
 
-렌즈별 수치: pooled에서는 Ribes 우위이나, Ribes를 자기 학습 라벨로 평가 시 0.491, 단일클래스 KRAS 블록(786 중 214개 거의 전부 음성) 제거 시 STAN 0.427, 타겟 구성을 통제한 타겟별 macro AUROC는 셋 다 0.50–0.59. 두 도구의 일치도는 활성확률 Spearman 0.19, Cohen κ=0.13으로 낮다. (해석은 ⑤-2)
-
-구조 기반 **DegradeMaster**는 화합물마다 3원 pocket이 필요해 본 세트에 적용할 수 없어 저자 보고값만 인용한다: supervised PROTAC-1K AUROC 0.854, semisupervised PROTAC-8K(random split) 0.882²⁸. 이 셋을 단일 held-out 세트로 비교할 수 없는데, DegradeMaster가 구조를 가진 유일한 셋 PROTAC-8K가 STAN 학습셋과 **100%**·Ribes와 **68%** 겹치기 때문이다. (이 수치들의 함의는 ⑤-2)
-
-**세 도구 공통 패턴 — random split은 높고, 타겟 교차에서 붕괴** ([표3b]·[그림2-5] `outputs/fig_alltools_selftest.png`). 각 도구의 *자체* 평가만 봐도 같은 현상이 드러난다. Ribes는 저자 리포트에서 random split AUROC 0.91이지만 **target-split에서 0.58**로 떨어지고(similarity split 0.90은 유지 → 골격 일반화는 되나 타겟 일반화는 안 됨), STAN도 자체 test 0.910 대비 타겟별 macro 0.531이다. DegradeMaster는 random split 0.882만 보고할 뿐 타겟 교차·전향적 성능은 구조 요구로 측정 불가하다.
-
-**[표3b] 도구별 자체 평가: random split vs 타겟 교차 split**
-
-| 도구 | random/in-dist | 타겟 교차(target-split) | similarity split | 우리 전향적 hold-out |
-|---|---|---|---|---|
-| PROTAC-STAN | 0.910 (자체 test 207) | 0.531 (per-target macro) | — | 0.574 (pooled) |
-| Ribes (XGBoost) | 0.906 | **0.585** | 0.897 | 0.696(strict)/0.491(native) |
-| Ribes (배포 앙상블) | 0.83 | 0.55 | 0.66 | — |
-| DegradeMaster | 0.854(1K)·0.882(8K) | 측정 불가 | — | 측정 불가(구조 필요) |
-
-> Ribes 전향적의 두 값은 **같은 예측·같은 hold-out에 정답 라벨 기준만 다른 것**이다 — strict(STAN 기준 `DC50<100nM & Dmax≥80%`, 양성 388/1,134=34%)에선 0.696, native(Ribes 기준 `DC50≤1000nM & Dmax≥60%`, 양성 798/1,134=70%)에선 0.491. 두 기준에서 라벨이 뒤바뀌는 화합물이 **410개(36%, 전부 DC50 100–1000nM·Dmax 60–80% 중간대)** 라 양성 집합이 34%↔70%로 바뀌고, 그 결과 같은 점수가 0.49↔0.70으로 흔들린다. 분야에 합의된 활성 임계값이 없어 채점 기준에 따라 순위가 흔들린다는 ⑤-2의 직접 증거다.
-
-**[표3c] 두 라벨 기준을 양 모델에 모두 적용 — 동일 hold-out(n=786)** ([그림2-6] `outputs/fig_threshold_x_model.png`)
-
-| 모델 | strict GT (양성 29%) | native GT (양성 70%) |
-|---|---|---|
-| PROTAC-STAN | 0.550 [0.51, 0.59] | 0.559 [0.51, 0.60] |
-| Ribes-standard | **0.696** [0.65, 0.74] | 0.491 [0.45, 0.53] |
-| Ribes-target | 0.685 [0.64, 0.73] | **0.577** [0.54, 0.62] |
-
-같은 셋·같은 예측에 두 임계값을 모두 적용하면: (1) **순위가 뒤집힌다** — strict에선 Ribes-standard(0.696)가 1위지만 native에선 0.491로 STAN보다도 낮은 꼴찌가 된다. (2) **STAN은 두 기준에서 0.55~0.56으로 안정적**(strict형 라벨로 학습된 영향), Ribes-standard는 0.49~0.70으로 가장 크게 출렁인다. (3) 그럼에도 **모든 칸이 0.49~0.70(무작위 부근)** 이라 "전향적으로 미성숙"이라는 절대 결론은 임계값과 무관하게 불변이다. 즉 라벨 기준은 *상대 순위*를 바꾸지만 *절대 성능*은 못 바꾼다.
-
-→ 도구·모델·split을 달리해도 결론은 견고하다: **in-distribution(random) ≈0.85~0.91 → 타겟 교차/전향적 ≈0.45~0.59**. "벤치마크 성능"은 일관되게 실사용(신규 타겟·신규 골격) 성능을 과대평가한다.
+→ Ribes는 similarity split(0.90)은 유지하나 **target-split(0.58)만 무너진다 — 새 골격엔 강하나 새 타겟엔 약함**(STAN per-target 붕괴와 동일 메커니즘). 도구·모델·split·임계값을 달리해도 결론은 견고하다: **in-distribution ≈0.85~0.91 → 타겟 교차/전향적 ≈0.45~0.59**. "벤치마크 성능"은 일관되게 실사용(신규 타겟·신규 골격) 성능을 과대평가한다.
 
 ### 4-2. (나) 투과성 도구 — 3중 도메인 구분의 실증 ([표4]·[그림3])
 - **Potts-Guy(피부 투과)**: 29개 logKp는 −8.22 ~ −6.74로 압축되었고, MW>750이 11/29·TPSA>140이 13/29로 전체의 44.8%가 적용도메인(AD) 밖이다. MW항 지배로 모든 PROTAC이 균일하게 낮은 logKp로 압축되어 변별력을 잃는다(예상된 결과). 절대 Kp는 정량 신뢰가 불가하다. 예측 logKp와 실측 피부 잔류의 Spearman은 0.042로, 피부 잔류(depot)와 피부 통과(Kp)가 물리적으로 다른 endpoint임을 보여준다([그림3] `outputs/fig3_separation.png`).
