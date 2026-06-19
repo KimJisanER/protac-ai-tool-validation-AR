@@ -1,4 +1,3 @@
-# PyMOL: cofold 클러스터 시각화 (CRBN 정렬). 실행: pymol /home/kimjisan95/ar_protac_project/outputs/view_cofold_clusters.pml
 bg_color white
 load /home/kimjisan95/ar_protac_project/outputs/cofold_aligned/A15.pdb, A15
 load /home/kimjisan95/ar_protac_project/outputs/cofold_aligned/A8.pdb, A8
@@ -31,7 +30,8 @@ load /home/kimjisan95/ar_protac_project/outputs/cofold_aligned/A9.pdb, A9
 load /home/kimjisan95/ar_protac_project/outputs/cofold_aligned/C4.pdb, C4
 hide everything
 show cartoon
-color gray70, chain B
+set cartoon_transparency, 0.2
+color gray80, chain B
 color marine, A15 and chain A
 color marine, A8 and chain A
 color marine, B1 and chain A
@@ -61,7 +61,50 @@ color orange, A6 and chain A
 color orange, A7 and chain A
 color orange, A9 and chain A
 color orange, C4 and chain A
+hide cartoon, chain C
 show sticks, chain C
-set cartoon_transparency, 0.1
+color yellow, chain C
+set stick_radius, 0.12
+set ray_opaque_background, 0
+set antialias, 2
+set ray_shadows, 0
 orient
-png /home/kimjisan95/ar_protac_project/outputs/cofold_clusters_overview.png, width=1600, height=1200, dpi=150, ray=1
+ray 1500, 1100
+png /home/kimjisan95/ar_protac_project/outputs/cofold_clusters_overview.png, dpi=150
+disable all
+enable A15
+enable A8
+enable B1
+enable B2
+enable B3
+enable B4
+enable B5
+enable B6
+enable C1
+enable C2
+enable C3
+enable C5
+enable C6
+enable C7
+orient (enabled)
+ray 1300,1000
+png /home/kimjisan95/ar_protac_project/outputs/cofold_cluster1_BC.png, dpi=150
+disable all
+enable A1
+enable A10
+enable A11
+enable A12
+enable A13
+enable A14
+enable A16
+enable A2
+enable A3
+enable A4
+enable A5
+enable A6
+enable A7
+enable A9
+enable C4
+orient (enabled)
+ray 1300,1000
+png /home/kimjisan95/ar_protac_project/outputs/cofold_cluster2_A.png, dpi=150
