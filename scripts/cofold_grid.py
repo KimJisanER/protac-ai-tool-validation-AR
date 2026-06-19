@@ -9,8 +9,8 @@ import matplotlib.pyplot as plt, matplotlib.image as mpimg
 TILE='/home/kimjisan95/ar_protac_project/outputs/tiles'
 OUT='/home/kimjisan95/ar_protac_project/outputs/cofold_grid_BCA.png'
 order=[f'B{i}' for i in range(1,7)]+[f'C{i}' for i in range(1,8)]+[f'A{i}' for i in range(1,17)]  # 29
-ncol,nrow=3,10
-fig,axes=plt.subplots(nrow,ncol,figsize=(ncol*2.0,nrow*2.0+0.5))
+ncol,nrow=5,6
+fig,axes=plt.subplots(nrow,ncol,figsize=(ncol*2.0,nrow*2.0+0.4))
 fig.patch.set_facecolor('black')
 for k,ax in enumerate(axes.flat):
     ax.set_facecolor('black'); ax.set_xticks([]); ax.set_yticks([])
