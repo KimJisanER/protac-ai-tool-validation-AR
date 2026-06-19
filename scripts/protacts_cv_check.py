@@ -43,7 +43,9 @@ for ik in list(dup.index)[:3]:
 sc=fea.groupby('scaf')['ik'].nunique(); multi=sc[sc>1]
 print(f"\n[scaffold] 2개 이상 화합물을 묶는 골격: {len(multi)}개 → {dict(list(multi.items())[:5])}")
 
-def tab(): return TabPFNRegressor(random_state=42, ignore_pretraining_limits=True, device='cpu')
+import os as _os
+_DEV=_os.environ.get('TABPFN_DEVICE','cuda')
+def tab(): return TabPFNRegressor(random_state=42, ignore_pretraining_limits=True, device=_DEV)
 def run(splits, name):
     yp=np.full(len(y),np.nan)
     for tr,te in splits:

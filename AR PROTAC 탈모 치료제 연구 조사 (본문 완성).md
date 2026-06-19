@@ -169,15 +169,17 @@ AR 한정 평가는 표본이 작아 도구의 일반 성능을 말할 수 없�
 
 **PROTAC-TS 전향 일반화 평가 — 분해 도구와의 결정적 차이** ([표4] `outputs/protacts_holdout_cv.csv`). PROTAC-TS 학습셋이 PROTAC-DB Caco-2(A2B)의 **61/62를 이미 포함**해 외부 held-out이 사실상 없으므로(투과성 벤치마크 포화), 동일 데이터를 분할 기준을 달리해 재학습·평가하였다(채점 라벨 = **89개 측정·60 고유 화합물**).
 
-**[표4] PROTAC-TS Caco-2 — 분할 기준별 hold-out 성능** (라벨 89 측정/60 화합물)
+**[표4] PROTAC-TS Caco-2 — hold-out 성능** (라벨 89 측정/60 화합물; **9개 화합물이 2~13회 중복 측정**, 모두 동일 SMILES)
 
 | 분할(hold-out 기준) | R² | Spearman |
 |---|---|---|
-| row-level LOOCV (보고값 0.78 재현; 중복 측정 누수 포함) | 0.776 | 0.860 |
-| compound group CV (같은 화합물 누수 제거) | 0.516 | 0.771 |
-| scaffold group CV (새 골격 일반화) | 0.692 | 0.808 |
+| row-level LOOCV (보고값 0.78 재현; **동일 분자 중복측정 누수**) | 0.776 | 0.860 |
+| **compound LOGO** (화합물 통째 제거, 결정적) | **0.610** | 0.779 |
+| **scaffold LOGO** (골격 통째 제거, 결정적) | 0.614 | 0.782 |
+| compound 5-fold (반복 5 seed) | 0.43 ± 0.21 | 0.70 ± 0.11 |
+| scaffold 5-fold (반복 5 seed) | 0.51 ± 0.16 | 0.72 ± 0.12 |
 
-LOOCV 0.776은 PROTAC-TS 보고값(R²≈0.78)을 재현하나 중복 측정(89행/60화합물) 누수를 포함하고, **화합물·골격을 제대로 held-out하면 R²≈0.5(순위 Spearman≈0.8)**로 순위 예측력은 유지하나 절대값은 부정확하다. **분해 도구가 전향적으로 ~무작위(AUROC 0.57)로 붕괴한 것과 대조적으로 투과(PROTAC-TS)는 순위를 유지**해 셋 중 상대적으로 가장 낫다. 그러나 이를 "충분"으로 볼 수는 없다: ① R²≈0.5로 절대값 부정확, ② Caco-2는 AGA의 핵심인 피부 투과/잔류와 다른 양(Caco-2 예측 vs 피부 logKp −0.05), ③ 학습셋이 가용 PROTAC Caco-2를 포화(61/62)시켜 외부 신규 데이터로 검증할 방법조차 없다 — PROTAC-TS도 weak prior에 머문다.
+LOOCV 0.776은 PROTAC-TS 보고값(R²≈0.78)을 재현하나 **같은 분자가 최대 13회 중복 등록**된 누수를 포함한다(한 행을 빼도 동일 분자의 나머지가 학습에 남음). 누수를 없앤 **compound/scaffold LOGO는 0.610≈0.614로 거의 같은데**, 60화합물/59골격이라 두 분할이 사실상 동일하기 때문이다 — 앞서 단일 5-fold에서 scaffold(0.69)>compound(0.52)였던 것은 **±0.2에 달하는 소표본 분할 변동의 우연**임을 반복 5-fold가 확인한다. 정직한 held-out은 **R²≈0.5(0.43–0.61)·Spearman≈0.75(0.70–0.78)**로, 순위 예측력은 유지하나 절대값은 부정확하다. **분해 도구가 전향적으로 ~무작위(AUROC 0.57)로 붕괴한 것과 대조적으로 투과(PROTAC-TS)는 순위를 유지**해 셋 중 상대적으로 가장 낫다. 그러나 이를 "충분"으로 볼 수는 없다: ① R²≈0.5로 절대값 부정확, ② Caco-2는 AGA의 핵심인 피부 투과/잔류와 다른 양(Caco-2 예측 vs 피부 logKp −0.05), ③ 학습셋이 가용 PROTAC Caco-2를 포화(61/62)시켜 외부 신규 데이터로 검증할 방법조차 없다 — PROTAC-TS도 weak prior에 머문다.
 
 **Potts-Guy와 직접 비교 (동일 실측 Caco-2 기준).** 학습이 없는 Potts-Guy 공식을 같은 화합물에 적용하면 실측 Caco-2와 **Spearman +0.13(Pearson +0.16, 사실상 무상관)** 으로, PROTAC-TS(held-out Spearman≈0.8)에 크게 못 미친다 — 이 세트가 MW 716–1459로 **85%가 Potts-Guy 소분자 적용도메인 밖**이기 때문이다. 즉 **PROTAC 투과 순위 예측은 학습된 전용 모델(PROTAC-TS) ≫ 일반 소분자 QSPR(Potts-Guy)**. 단 Potts-Guy는 본래 피부 Kp(다른 endpoint)용이고 그 검증값(피부 잔류)과도 Spearman 0.042로 무관해 PROTAC엔 어느 쪽으로도 부적합하다. (해석 ⑤-3)
 
@@ -251,7 +253,7 @@ case study 29개에 PROTAC-STAN을 적용하면 leakage-free 활성 앵커(C5 70
 
 ## 부록 — 재현 정보
 - **환경**: 메인 분석 `~/anaconda3/envs/protac`(Python 3.10, torch 2.8.0+cu128, RDKit 2026.03.1). 투과(PROTAC-TS) `protac_ts`(TabPFN). co-fold(Boltz-2) `protac_boltz`. 도구 교차검증(Ribes) `protac_ribes`.
-- **스크립트(`scripts/`)**: `phase0_freeze.py`, `fig1_chemspace.py`, `run_stan_inference.py`/`run_stan_ts.py`(STAN 추론), `timesplit_build.py`/`timesplit_eval.py`(전향적 평가), `multitool_eval.py`(STAN vs Ribes), `phase3_skin.py`(Potts-Guy), `protacts_predict.py`(PROTAC-TS Caco-2), `phase5_design.py`(신규 설계), `resolve_doi_years.py`/`build_pubdate_kde.py`(게재연도), `build_chemspace_html.py`(인터랙티브 화학공간), `stan_patch.py`, `stan_testset_build.py`(STAN 자체 train/test 평가), `protacts_holdout_cv.py`(PROTAC-TS Caco-2 hold-out CV)·`permeability_compare.py`(Potts-Guy vs PROTAC-TS), `boltz_all29_build.py`/`boltz_all29_collect.py`(co-fold 29개 생성·집계). Boltz 입력 `~/PROTAC_MTL_v5/boltz_{B3_ternary,all29}/`. Ribes 자체 test 메트릭은 `~/PROTAC-Degradation-Predictor/reports/`.
+- **스크립트(`scripts/`)**: `phase0_freeze.py`, `fig1_chemspace.py`, `run_stan_inference.py`/`run_stan_ts.py`(STAN 추론), `timesplit_build.py`/`timesplit_eval.py`(전향적 평가), `multitool_eval.py`(STAN vs Ribes), `phase3_skin.py`(Potts-Guy), `protacts_predict.py`(PROTAC-TS Caco-2), `phase5_design.py`(신규 설계), `resolve_doi_years.py`/`build_pubdate_kde.py`(게재연도), `build_chemspace_html.py`(인터랙티브 화학공간), `stan_patch.py`, `stan_testset_build.py`(STAN 자체 train/test 평가), `protacts_holdout_cv.py`·`protacts_cv_check.py`(PROTAC-TS Caco-2 hold-out CV·LOGO·중복분석)·`permeability_compare.py`(Potts-Guy vs PROTAC-TS), `boltz_all29_build.py`/`boltz_all29_collect.py`(co-fold 29개 생성·집계). Boltz 입력 `~/PROTAC_MTL_v5/boltz_{B3_ternary,all29}/`. Ribes 자체 test 메트릭은 `~/PROTAC-Degradation-Predictor/reports/`.
 - **산출물(`outputs/`)**: `table1~5.csv`, `timesplit_metrics.csv`·`timesplit_per_target.csv`·`multitool_metrics.csv`, 그림 `fig1_chemspace.png`·`ts_roc.png`·`ts_per_target.png`·`fig_multitool.png`·`fig3_separation.png`·`fig_protacts.png`·`pubdate_kde.png`·`fig_boltz_all29.png`·`fig_testset_vs_holdout.png`·`fig_alltools_selftest.png`·`fig_threshold_x_model.png`·`fig_pred_vs_actual.png`, `boltz_all29_confidence.csv`·`threshold_x_model.csv`·`protacts_holdout_cv.csv`·`ribes_29_probs.csv`, 인터랙티브 `chemspace_view1_AR.html`·`chemspace_view2_split.html`, Boltz 구조 29개 `~/PROTAC_MTL_v5/boltz_all29/out/.../predictions/<ID>/<ID>_model_0.pdb`(+ B3 별도).
 
 ---
